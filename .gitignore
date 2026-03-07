@@ -1,0 +1,6 @@
+# SQLite Database
+instance/database.db
+
+# OS specific files
+.DS_Store
+Thumbs.db
