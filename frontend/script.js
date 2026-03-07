@@ -36,5 +36,14 @@ async function loadTasks() {
     });
 }
 
+// Function to delete a task
+async function deleteTask(taskId) {
+    const response = await fetch(`http://127.0.0.1:5000/api/tasks/${taskId}`, {
+        method: 'DELETE'
+    });
+
+    loadTasks();
+}
+
 // Load tasks when the page loads
 window.onload = loadTasks;

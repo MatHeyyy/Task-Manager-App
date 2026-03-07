@@ -19,12 +19,14 @@ class Task(db.Model):
 with app.app_context():
     db.create_all()
 
+# Define route to get all tasks
 @app.route('/api/tasks', methods=['GET'])
 def get_tasks():
     task = Task.query.all()
     # Convert the list of tasks to a list of dictionaries
     return jsonify([{'id': t.id, 'content': t.content} for t in task])
 
+# Define route to add a new task
 @app.route('/api/tasks', methods=['POST'])
 def add_task():
     data = request.json
@@ -33,5 +35,14 @@ def add_task():
     db.session.commit()
     return jsonify({"message": "Task saved!"}), 201
 
+# Define route to delete a task by ID
+@app.route('/api/tasks/<int:id>', methods=['DELETE'])
+def delete_task(id):
+    task = Task.query.get(id)
+    if task:
+        db.session.delete(task)
+        db.session.commit()
+        return jsonify({"message": "Task deleted!"}), 200
+    return jsonify({"message": "Task not found!"}), 404
 if __name__ == '__main__':
     app.run(debug=True)
