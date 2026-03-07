@@ -8,6 +8,7 @@ CORS(app)
 
 # Configure the database URI, this tells Flask where to store the database file
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 # Define a simple Task model for demonstration purposes
@@ -29,8 +30,19 @@ def get_tasks():
 # Define route to add a new task
 @app.route('/api/tasks', methods=['POST'])
 def add_task():
-    data = request.json
-    new_task = Task(content=data['content'])
+    if not request.is_json:
+        return jsonify({"message": "Request must be JSON."}), 400
+
+    data = request.get_json(silent=True) or {}
+    content = (data.get('content') or '').strip()
+
+    if not content:
+        return jsonify({"message": "Task content cannot be empty."}), 400
+
+    if len(content) > 200:
+        return jsonify({"message": "Task content must be 200 characters or fewer."}), 400
+
+    new_task = Task(content=content)
     db.session.add(new_task)
     db.session.commit()
     return jsonify({"message": "Task saved!"}), 201
@@ -38,7 +50,7 @@ def add_task():
 # Define route to delete a task by ID
 @app.route('/api/tasks/<int:id>', methods=['DELETE'])
 def delete_task(id):
-    task = Task.query.get(id)
+    task = db.session.get(Task, id)
     if task:
         db.session.delete(task)
         db.session.commit()
