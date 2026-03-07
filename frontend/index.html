@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My First Full Stack App</title>
+</head>
+<body>
+    <h1>Full Stack Connection</h1>
+    <button id="fetchBtn">Get message from server</button>
+    <p id="display"></p>
+
+    <script>
+        const button = document.getElementById('fetchBtn');
+        const display = document.getElementById('display');
+
+        button.onclick = async () => {
+            //Request data from the server
+            const response = await fetch('http://localhost:5000/message');
+            //Turn the response into JSON
+            const data = await response.json();
+            //Display the message on the page
+            display.innerText = data.message;
+        }
+    </script>
+    
+</body>
+</html>
