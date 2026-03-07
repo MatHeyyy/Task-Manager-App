@@ -1,3 +1,4 @@
+// Function to add a new task
 async function addTask() {
     const input = document.getElementById('taskInput');
     const taskContent = input.value;
@@ -16,6 +17,7 @@ async function addTask() {
     }
 }
 
+// Function to load tasks from the backend
 async function loadTasks() {
     const response = await fetch('http://127.0.0.1:5000/api/tasks');
     const tasks = await response.json();
@@ -30,4 +32,5 @@ async function loadTasks() {
     });
 }
 
+// Load tasks when the page loads
 window.onload = loadTasks;
