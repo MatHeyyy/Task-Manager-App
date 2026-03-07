@@ -27,7 +27,11 @@ async function loadTasks() {
 
     tasks.forEach(task => {
         const li = document.createElement('li');
-        li.textContent = task.content;
+        li.className = "list-group-item d-flex justify-content-between align-items-center";
+        li.innerHTML = `
+            ${task.content}
+            <button class="btn btn-danger btn-sm" onclick="deleteTask(${task.id})">Delete</button>
+        `;
         list.appendChild(li);
     });
 }
