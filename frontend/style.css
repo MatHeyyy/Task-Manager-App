@@ -1,0 +1,28 @@
+body{
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.card{
+    border: none;
+    border-radius: 15px;
+}
+
+.list-group-item{
+    border-left: none;
+    border-right: none;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.list-group-item:hover{
+    background-color: #f8f9fa;
+    transform: scale(1.01);
+}
+
+.task-text{
+    flex-grow: 1;
+    margin-left: 10px;
+}

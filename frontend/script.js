@@ -50,13 +50,29 @@ async function loadTasks() {
         const list = document.getElementById('taskList');
         list.innerHTML = '';
 
+        if (tasks.length === 0) {
+            list.innerHTML = `
+        <div class="text-center p-5">
+            <img src="https://cdn-icons-png.flaticon.com/512/5058/5058436.png" style="width: 80px; opacity: 0.5;">
+            <p class="text-muted mt-3">All caught up!</p>
+        </div>
+    `;
+            return;
+        }
+
         tasks.forEach(task => {
             const li = document.createElement('li');
-            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.className = 'list-group-item d-flex align-items-center border-0 mb-2 shadow-sm rounded';
+
+            const isChecked = task.completed ? 'checked' : '';
+            const textStyle = task.completed ? 'text-decoration: line-through; color: #adb5bd' : '';
             li.innerHTML = `
-                ${task.content}
-                <button class="btn btn-danger btn-sm" onclick="deleteTask(${task.id})">Delete</button>
-            `;
+        <input class="form-check-input me-2" type="checkbox" ${isChecked} onclick="toggleTask(${task.id})">
+        <span class="task-text" style="${textStyle}">${task.content}</span>
+        <button class="btn btn-outline-danger btn-sm border-0" onclick="deleteTask(${task.id})">
+            <i class="bi bi-trash"></i> Delete
+        </button>
+    `;
             list.appendChild(li);
         });
     } catch (error) {
@@ -79,6 +95,24 @@ async function deleteTask(taskId) {
         await loadTasks();
     } catch (error) {
         showError('Could not connect to backend while deleting task.');
+    }
+}
+
+// Function to toggle task completion status
+async function toggleTask(taskId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}`, {
+            method: 'PATCH'
+        });
+
+        if (!response.ok) {
+            showError('Failed to toggle task status.');
+            return;
+        }
+
+        await loadTasks();
+    } catch (error) {
+        showError('Could not connect to backend while toggling task status.');
     }
 }
 
