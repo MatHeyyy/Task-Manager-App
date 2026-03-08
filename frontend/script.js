@@ -54,7 +54,7 @@ async function loadTasks() {
             list.innerHTML = `
         <div class="text-center p-5">
             <img src="https://cdn-icons-png.flaticon.com/512/5058/5058436.png" style="width: 80px; opacity: 0.5;">
-            <p class="text-muted mt-3">All caught up! Time to relax. ☕</p>
+            <p class="text-muted mt-3">All caught up!</p>
         </div>
     `;
             return;
