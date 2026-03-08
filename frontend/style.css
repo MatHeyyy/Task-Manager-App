@@ -9,3 +9,20 @@ body{
     border: none;
     border-radius: 15px;
 }
+
+.list-group-item{
+    border-left: none;
+    border-right: none;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.list-group-item:hover{
+    background-color: #f8f9fa;
+    transform: scale(1.01);
+}
+
+.task-text{
+    flex-grow: 1;
+    margin-left: 10px;
+}
