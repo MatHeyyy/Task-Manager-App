@@ -118,3 +118,10 @@ async function toggleTask(taskId) {
 
 // Load tasks when the page loads
 window.onload = loadTasks;
+
+document.getElementById('taskInput').addEventListener('keypress', function (event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        addTask();
+    }
+});
