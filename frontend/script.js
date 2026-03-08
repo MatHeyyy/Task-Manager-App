@@ -98,5 +98,23 @@ async function deleteTask(taskId) {
     }
 }
 
+// Function to toggle task completion status
+async function toggleTask(taskId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}`, {
+            method: 'PATCH'
+        });
+
+        if (!response.ok) {
+            showError('Failed to toggle task status.');
+            return;
+        }
+
+        await loadTasks();
+    } catch (error) {
+        showError('Could not connect to backend while toggling task status.');
+    }
+}
+
 // Load tasks when the page loads
 window.onload = loadTasks;
