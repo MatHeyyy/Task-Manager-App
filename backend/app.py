@@ -15,6 +15,7 @@ db = SQLAlchemy(app)
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(200), nullable=False)
+    complete = db.Column(db.Boolean, default=False)
 
 #Create the database file
 with app.app_context():
@@ -25,7 +26,7 @@ with app.app_context():
 def get_tasks():
     task = Task.query.all()
     # Convert the list of tasks to a list of dictionaries
-    return jsonify([{'id': t.id, 'content': t.content} for t in task])
+    return jsonify([{'id': t.id, 'content': t.content, 'completed': t.complete} for t in task])
 
 # Define route to add a new task
 @app.route('/api/tasks', methods=['POST'])
@@ -56,5 +57,19 @@ def delete_task(id):
         db.session.commit()
         return jsonify({"message": "Task deleted!"}), 200
     return jsonify({"message": "Task not found!"}), 404
+
+# Define route to toggle the completion status of a task by ID
+@app.route('/api/tasks/<int:id>', methods=['PATCH'])
+def toggle_task(id):
+    task = db.session.get(Task, id)
+
+    if not task:
+        return jsonify({"message": "Task not found!"}), 404
+    
+    task.complete = not task.complete
+    db.session.commit()
+    return jsonify({"message": "Task updated!", "completed": task.complete}), 200
+
+# Run the application
 if __name__ == '__main__':
     app.run(debug=True)
