@@ -52,12 +52,27 @@ async function loadTasks() {
 
         tasks.forEach(task => {
             const li = document.createElement('li');
-            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.className = 'list-group-item d-flex align-items-center border-0 mb-2 shadow-sm rounded';
+
+            const isChecked = task.completed ? 'checked' : '';
+            const textStyle = task.completed ? 'text-decoration: line-through; color: #adb5bd' : '';
             li.innerHTML = `
-                ${task.content}
-                <button class="btn btn-danger btn-sm" onclick="deleteTask(${task.id})">Delete</button>
-            `;
+        <input class="form-check-input me-2" type="checkbox" ${isChecked} onclick="toggleTask(${task.id})">
+        <span class="task-text" style="${textStyle}">${task.content}</span>
+        <button class="btn btn-outline-danger btn-sm border-0" onclick="deleteTask(${task.id})">
+            <i class="bi bi-trash"></i> Delete
+        </button>
+    `;
             list.appendChild(li);
+            if (tasks.length === 0) {
+                list.innerHTML = `
+        <div class="text-center p-5">
+            <img src="https://cdn-icons-png.flaticon.com/512/5058/5058436.png" style="width: 80px; opacity: 0.5;">
+            <p class="text-muted mt-3">All caught up! Time to relax. ☕</p>
+        </div>
+    `;
+                return;
+            }
         });
     } catch (error) {
         showError('Could not connect to backend while loading tasks.');
