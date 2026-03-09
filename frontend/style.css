@@ -1,28 +1,39 @@
-body{
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+body {
+    background-color: #f8f9fa; /* Matches Bootstrap's bg-light */
+    padding-top: 0; 
+    display: block; 
     min-height: 100vh;
-    display: flex;
-    align-items: center;
 }
 
-.card{
-    border: none;
-    border-radius: 15px;
+.sidebar {
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
 }
 
-.list-group-item{
+.nav-link.hover-bg {
+    transition: background-color 0.2s ease-in-out;
+}
+
+.nav-link.hover-bg:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.list-group-item {
     border-left: none;
     border-right: none;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     cursor: pointer;
 }
 
-.list-group-item:hover{
+.list-group-item:hover {
     background-color: #f8f9fa;
-    transform: scale(1.01);
+    transform: translateY(-1px);
 }
 
-.task-text{
+.task-text {
     flex-grow: 1;
     margin-left: 10px;
+    transition: color 0.3s ease;
 }
