@@ -13,7 +13,7 @@
 <body class="bg-light">
     <div class="container-fluid">
         <div class="row vh-100">
-            <nav class="col-md-2 d-none d-md-block bg-dark text-white sidebar py-4">
+            <nav id="sidebar" class="col-md-2 d-none d-md-block bg-dark text-white sidebar py-4">
                 <h4 class="text-center mb-5 fw-bold text-primary"><i class="bi bi-check2-square"></i> Taskify</h4>
                 <ul class="nav flex-column px-3 gap-2">
                     <li class="nav-item"><a class="nav-link text-white rounded bg-primary bg-opacity-25" href="#"><i
@@ -24,8 +24,14 @@
                                 class="bi bi-folder me-2"></i> Projects</a></li>
                 </ul>
             </nav>
-            <main class="col-md-10 p-4 p-md-5 overflow-auto">
+            
+            <main id="mainContent" class="col-md-10 p-4 p-md-5 overflow-auto">
                 <div class="d-flex justify-content-between align-items-center mb-5">
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-outline-secondary border-0 me-3 d-none d-md-block" onclick="toggleSidebar()">
+                            <i class="bi bi-list fs-3"></i>
+                        </button>
+                    </div>
                     <div>
                         <h2 class="fw-bold mb-0">Welcome back!</h2>
                         <p class="text-muted mb-0">Here's what's happening today.</p>

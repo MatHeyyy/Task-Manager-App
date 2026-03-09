@@ -1,3 +1,17 @@
+
+#sidebar {
+    transition: flex-basis 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+        max-width 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+        padding 0.3s ease,
+        opacity 0.25s ease;
+}
+
+#mainContent {
+    transition: flex-basis 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+        max-width 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+        padding 0.3s ease;
+}
+
 body {
     background-color: #f8f9fa; /* Matches Bootstrap's bg-light */
     padding-top: 0; 
@@ -10,6 +24,31 @@ body {
     position: sticky;
     top: 0;
     box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+
+@media (min-width: 768px) {
+    #sidebar {
+        flex: 0 0 240px;
+        max-width: 240px;
+        width: auto;
+        will-change: flex-basis, max-width, opacity;
+    }
+
+    #sidebar.is-collapsed {
+        flex-basis: 0;
+        max-width: 0;
+        opacity: 0;
+        overflow: hidden;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    #mainContent {
+        flex: 1 1 auto;
+        max-width: none;
+        width: auto;
+        min-width: 0;
+    }
 }
 
 .nav-link.hover-bg {

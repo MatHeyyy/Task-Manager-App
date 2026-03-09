@@ -76,7 +76,7 @@ async function loadTasks() {
                 }
             }
         });
-        
+
         const remainingCount = tasks.length - completedCount;
         document.getElementById('overviewWidget').textContent = `${remainingCount} tasks remaining today. ${completedCount} completed!`;
         document.getElementById('urgentWidget').textContent = `${urgentCount} urgent tasks due within 24 hours.`;
@@ -161,6 +161,12 @@ async function toggleTask(taskId) {
     } catch (error) {
         showError('Could not connect to backend while toggling task status.');
     }
+}
+
+// Function to toggle sidebar visibility
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('is-collapsed');
 }
 
 // Load tasks when the page loads
