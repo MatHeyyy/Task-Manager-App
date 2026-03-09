@@ -14,13 +14,11 @@
 
 body {
     background-color: #f8f9fa; /* Matches Bootstrap's bg-light */
-    padding-top: 0; 
-    display: block; 
     min-height: 100vh;
 }
 
 .sidebar {
-    height: 100vh;
+    min-height: 100vh;
     position: sticky;
     top: 0;
     box-shadow: 2px 0 10px rgba(0,0,0,0.1);
@@ -75,4 +73,5 @@ body {
     flex-grow: 1;
     margin-left: 10px;
     transition: color 0.3s ease;
+    word-break: break-word;
 }
