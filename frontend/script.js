@@ -53,6 +53,34 @@ async function loadTasks() {
 
         const tasks = await response.json();
 
+        let completedCount = 0;
+        let urgentCount = 0;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        tasks.forEach(task => {
+            if (task.completed) {
+                completedCount++;
+            } else {
+                if (task.due_date) {
+                    const dueDate = new Date(task.due_date);
+                    if (dueDate <= tomorrow) {
+                        urgentCount++;
+                    }
+                } else if (task.priority === 'High') {
+                    urgentCount++;
+                }
+            }
+        });
+        
+        const remainingCount = tasks.length - completedCount;
+        document.getElementById('overviewWidget').textContent = `${remainingCount} tasks remaining today. ${completedCount} completed!`;
+        document.getElementById('urgentWidget').textContent = `${urgentCount} urgent tasks due within 24 hours.`;
+
         const list = document.getElementById('taskList');
         list.innerHTML = '';
 
