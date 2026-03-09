@@ -8,8 +8,10 @@ function showError(message) {
 // Function to add a new task
 async function addTask() {
     const input = document.getElementById('taskInput');
-    const taskContent = input.value.trim();
+    const priorityInput = document.getElementById('taskPriority');
+    const dateInput = document.getElementById('taskDueDate');
 
+    const taskContent = input.value.trim();
     if (!taskContent) {
         showError('Task cannot be empty.');
         return;
@@ -21,7 +23,7 @@ async function addTask() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ content: taskContent })
+            body: JSON.stringify({ content: taskContent, priority: priorityInput.value, due_date: dateInput.value })
         });
 
         if (!response.ok) {
@@ -30,6 +32,8 @@ async function addTask() {
         }
 
         input.value = '';
+        priorityInput.value = 'Medium';
+        dateInput.value = '';
         await loadTasks();
     } catch (error) {
         showError('Could not connect to backend while adding task.');
@@ -69,6 +73,10 @@ async function loadTasks() {
             li.innerHTML = `
         <input class="form-check-input me-2" type="checkbox" ${isChecked} onclick="toggleTask(${task.id})">
         <span class="task-text" style="${textStyle}">${task.content}</span>
+        <div class="d-flex align-items-center mt-1">
+                <span class="badge bg-${badgeColor} bg-opacity-75 text-white rounded-pill px-2" style="font-size: 0.7em;">${task.priority}</span>
+                ${dateHtml}
+        </div>
         <button class="btn btn-outline-danger btn-sm border-0" onclick="deleteTask(${task.id})">
             <i class="bi bi-trash"></i> Delete
         </button>

@@ -16,6 +16,8 @@ class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(200), nullable=False)
     complete = db.Column(db.Boolean, default=False)
+    priority = db.Column(db.String(20), default='Medium')
+    due_date = db.Column(db.String(20), nullable=True)
 
 #Create the database file
 with app.app_context():
@@ -26,7 +28,7 @@ with app.app_context():
 def get_tasks():
     task = Task.query.all()
     # Convert the list of tasks to a list of dictionaries
-    return jsonify([{'id': t.id, 'content': t.content, 'completed': t.complete} for t in task])
+    return jsonify([{'id': t.id, 'content': t.content, 'completed': t.complete, 'priority': t.priority, 'due_date': t.due_date} for t in task])
 
 # Define route to add a new task
 @app.route('/api/tasks', methods=['POST'])
@@ -36,6 +38,8 @@ def add_task():
 
     data = request.get_json(silent=True) or {}
     content = (data.get('content') or '').strip()
+    priority = (data.get('priority') or 'Medium').strip()
+    due_date = (data.get('due_date') or '').strip()
 
     if not content:
         return jsonify({"message": "Task content cannot be empty."}), 400
@@ -43,7 +47,7 @@ def add_task():
     if len(content) > 200:
         return jsonify({"message": "Task content must be 200 characters or fewer."}), 400
 
-    new_task = Task(content=content)
+    new_task = Task(content=content, priority=priority, due_date=due_date)
     db.session.add(new_task)
     db.session.commit()
     return jsonify({"message": "Task saved!"}), 201
