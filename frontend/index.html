@@ -29,7 +29,8 @@
             <main id="mainContent" class="col-md-10 p-4 p-md-5 overflow-auto">
                 <div class="d-flex justify-content-between align-items-center mb-5">
                     <div class="d-flex align-items-center">
-                        <button class="btn btn-outline-secondary border-0 me-3 d-none d-md-block" onclick="toggleSidebar()">
+                        <button class="btn btn-outline-secondary border-0 me-3 d-none d-md-block"
+                            onclick="toggleSidebar()">
                             <i class="bi bi-list fs-3"></i>
                         </button>
                     </div>
@@ -48,7 +49,8 @@
                             <div class="card-body p-4">
                                 <h5 class="card-title fw-bold text-warning-emphasis"><i class="bi bi-fire"></i> Urgent
                                     Tasks</h5>
-                                <p class="card-text text-muted" id="urgentWidget">Tasks that need immediate attention within 24 hours.</p>
+                                <p class="card-text text-muted" id="urgentWidget">Tasks that need immediate attention
+                                    within 24 hours.</p>
                             </div>
                         </div>
                     </div>
@@ -56,7 +58,8 @@
                         <div class="card shadow-sm border-0 h-100">
                             <div class="card-body p-4">
                                 <h5 class="card-title fw-bold"><i class="bi bi-bar-chart-line"></i> Overview</h5>
-                                <p class="card-text text-muted" id="overviewWidget">5 tasks remaining today. 3 completed!</p>
+                                <p class="card-text text-muted" id="overviewWidget">5 tasks remaining today. 3
+                                    completed!</p>
                             </div>
                         </div>
                     </div>
@@ -85,20 +88,20 @@
                     <label class="form-label text-muted small fw-bold">TASK DETAILS</label>
                     <input type="text" id="taskInput" class="form-control form-control-lg mb-3"
                         placeholder="What needs to be done?">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label text-muted small fw-bold">PRIORITY</label>
-                                <select id="taskPriority" class="form-select">
-                                    <option value="High">High</option>
-                                    <option value="Medium" selected>Medium</option>
-                                    <option value="Low">Low</option>
-                                </select>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold">PRIORITY</label>
+                            <select id="taskPriority" class="form-select">
+                                <option value="High">High</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
                         </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label text-muted small fw-bold">DUE DATE</label>
-                                <input type="date" id="taskDueDate" class="form-control">
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small fw-bold">DUE DATE</label>
+                            <input type="date" id="taskDueDate" class="form-control">
                         </div>
+                    </div>
                 </div>
                 <div class="modal-footer border-0 pb-4 px-4">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
