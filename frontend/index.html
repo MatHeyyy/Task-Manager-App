@@ -24,6 +24,9 @@
                             href="#upcoming"><i class="bi bi-calendar-event me-2"></i> Upcoming</a></li>
                     <li class="nav-item"><a id="projectsNavLink" class="nav-link text-white rounded hover-bg"
                             href="#projects"><i class="bi bi-folder me-2"></i> Projects</a></li>
+                    <li class="nav-item mt-4 pt-4 border-top border-secondary border-opacity-25"><a id="settingsNavLink"
+                            class="nav-link text-white rounded hover-bg" href="#settings"><i
+                                class="bi bi-palette me-2"></i> Settings</a></li>
                 </ul>
             </nav>
 
@@ -110,12 +113,60 @@
                             <h2 class="fw-bold mb-0">Projects</h2>
                             <p class="text-muted mb-0">Group your tasks into larger goals.</p>
                         </div>
-                        <button class="btn btn-primary rounded pill shadow px-4 py-2" data-bs-toggle="modal" data-bs-target="#addProjectModal" aria-label="Add Project">
+                        <button class="btn btn-primary rounded pill shadow px-4 py-2" data-bs-toggle="modal"
+                            data-bs-target="#addProjectModal" aria-label="Add Project">
                             <i class="bi bi-folder-plus fw-bold"></i> New Project
                         </button>
                     </div>
 
                     <div class="row" id="projectsListContainer"></div>
+                </div>
+                <div id="settingsView" class="d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-5">
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-outline-secondary border-0 me-3 d-none d-md-block"
+                                onclick="toggleSidebar()" aria-label="Toggle navigation">
+                                <i class="bi bi-list fs-3"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <h2 class="fw-bold mb-0">Settings</h2>
+                            <p class="text-muted mb-0">Manage your application preferences and data.</p>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card header bg-transparent border-0 pt-4 pb-0 px-4">
+                            <h5 class="fw-bold mb-0"><i class="bi bi-palette me-2"></i>Appearance</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h6 class="fw-bold mb-1">Interface Theme</h6>
+                                    <p class="text-muted small mb-0">Customize how Taskify looks on your device.</p>
+                                </div>
+                                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                                    <select id="themeSelect" class="form-select w-auto d-inline-block" aria-label="Select Theme">
+                                        <option value="light">Light Mode</option>
+                                        <option value="dark">Dark Mode</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm border-0 border-top border-danger border-4">
+                        <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
+                            <h5 class="fw-bold mb-0"><i class="bi bi-shield-exclamation me-2"></i>Danger Zone</h5>
+                        </div>
+                        <div class="card-body p-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                            <div class="mb-3 mb-md-0">
+                                <h6 class="fw-bold mb-1">Delete All Data</h6>
+                                <p class="text-muted small mb-0">Permanently remove all your tasks and projects. This cannot be undone.</p>
+                            </div>
+                            <button class="btn btn-danger" onclick="alert('Are you sure you want to delete all data?')"> <i class="bi bi-trash"></i>Delete All Data</button>
+                        </div>
+                    </div>
                 </div>
             </main>
         </div>
@@ -155,8 +206,10 @@
                     </div>
                 </div>
                 <div class="modal-footer border-0 pb-4 px-4">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" aria-label="Cancel">Cancel</button>
-                    <button type="button" class="btn btn-primary px-4" onclick="addTask()" data-bs-dismiss="modal" aria-label="Save Task">Save
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal"
+                        aria-label="Cancel">Cancel</button>
+                    <button type="button" class="btn btn-primary px-4" onclick="addTask()" data-bs-dismiss="modal"
+                        aria-label="Save Task">Save
                         Task</button>
                 </div>
             </div>
@@ -186,7 +239,8 @@
                 </div>
                 <div class="modal-footer border-0 pb-4 px-4">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary px-4" onclick="addProject()" data-bs-dismiss="modal">Save
+                    <button type="button" class="btn btn-primary px-4" onclick="addProject()"
+                        data-bs-dismiss="modal">Save
                         Project</button>
                 </div>
             </div>
