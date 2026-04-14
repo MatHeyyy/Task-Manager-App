@@ -361,6 +361,18 @@ function initCalendar() {
     calendarInstance.render();
 }
 
+// Function to apply and save theme preference
+function setTheme(themeName) {
+    document.documentElement.setAttribute('data-bs-theme', themeName);
+    localStorage.setItem('taskify_theme', themeName);
+}
+
+// Function to check saveed preferences and load them
+function loadSavedTheme() {
+    const savedTheme = localStorage.getItem('taskify_theme') || 'light';
+    setTheme(savedTheme);
+}
+
 // Load tasks when the page loads
 window.onload = () => {
     loadTasks();
