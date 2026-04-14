@@ -1,28 +1,85 @@
-body{
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+
+#sidebar {
+    transition: flex-basis 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+        max-width 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+        padding 0.3s ease,
+        opacity 0.25s ease;
+}
+
+#mainContent {
+    transition: flex-basis 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+        max-width 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+        padding 0.3s ease;
+}
+
+body {
+    background-color: #f8f9fa; /* Matches Bootstrap's bg-light */
     min-height: 100vh;
-    display: flex;
-    align-items: center;
 }
 
-.card{
-    border: none;
-    border-radius: 15px;
+.sidebar {
+    min-height: 100vh;
+    position: sticky;
+    top: 0;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
 }
 
-.list-group-item{
+@media (min-width: 768px) {
+    #sidebar {
+        flex: 0 0 240px;
+        max-width: 240px;
+        width: auto;
+        will-change: flex-basis, max-width, opacity;
+    }
+
+    #sidebar.is-collapsed {
+        flex-basis: 0;
+        max-width: 0;
+        opacity: 0;
+        overflow: hidden;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    #mainContent {
+        flex: 1 1 auto;
+        max-width: none;
+        width: auto;
+        min-width: 0;
+    }
+}
+
+.nav-link.hover-bg {
+    transition: background-color 0.2s ease-in-out;
+}
+
+.nav-link.hover-bg:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.list-group-item {
     border-left: none;
     border-right: none;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     cursor: pointer;
 }
 
-.list-group-item:hover{
+.list-group-item:hover {
     background-color: #f8f9fa;
-    transform: scale(1.01);
+    transform: translateY(-1px);
 }
 
-.task-text{
+.task-text {
     flex-grow: 1;
     margin-left: 10px;
+    transition: color 0.3s ease;
+    word-break: break-word;
+}
+
+#calendar {
+    min-height: 650px;
+}
+
+#calendarView .card {
+    border-radius: 1rem;
 }

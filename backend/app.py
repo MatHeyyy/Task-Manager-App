@@ -11,22 +11,62 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+
+# Define the Project model
+class Project(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    colour = db.Column(db.String(20), default='primary')
+    tasks = db.relationship('Task', backref='project', lazy=True)
+
 # Define a simple Task model for demonstration purposes
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(200), nullable=False)
     complete = db.Column(db.Boolean, default=False)
+    priority = db.Column(db.String(20), default='Medium')
+    due_date = db.Column(db.String(20), nullable=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=True)
 
 #Create the database file
 with app.app_context():
     db.create_all()
+
+# --- PROJECT ROUTES ---
+
+@app.route('/api/projects', methods=['GET'])
+def get_projects():
+    projects = Project.query.all()
+    return jsonify([{'id': p.id, 'name': p.name, 'colour': p.colour, 'task_count': len(p.tasks)} for p in projects])
+
+@app.route('/api/projects', methods=['POST'])
+def add_project():
+    if not request.is_json:
+        return jsonify({"message": "Request must be JSON."}), 400
+
+    data = request.get_json(silent=True) or {}
+    name = (data.get('name') or '').strip()
+    colour = (data.get('colour') or 'primary').strip()
+
+    if not name:
+        return jsonify({"message": "Project name cannot be empty."}), 400
+
+    if len(name) > 100:
+        return jsonify({"message": "Project name must be 100 characters or fewer."}), 400
+
+    new_project = Project(name=name, colour=colour)
+    db.session.add(new_project)
+    db.session.commit()
+    return jsonify({"message": "Project created!"}), 201
+
+# --- TASK ROUTES ---
 
 # Define route to get all tasks
 @app.route('/api/tasks', methods=['GET'])
 def get_tasks():
     task = Task.query.all()
     # Convert the list of tasks to a list of dictionaries
-    return jsonify([{'id': t.id, 'content': t.content, 'completed': t.complete} for t in task])
+    return jsonify([{'id': t.id, 'content': t.content, 'completed': t.complete, 'priority': t.priority, 'due_date': t.due_date, 'project_id': t.project_id} for t in task])
 
 # Define route to add a new task
 @app.route('/api/tasks', methods=['POST'])
@@ -36,6 +76,9 @@ def add_task():
 
     data = request.get_json(silent=True) or {}
     content = (data.get('content') or '').strip()
+    priority = (data.get('priority') or 'Medium').strip()
+    due_date = (data.get('due_date') or '').strip()
+    project_id = data.get('project_id')
 
     if not content:
         return jsonify({"message": "Task content cannot be empty."}), 400
@@ -43,7 +86,7 @@ def add_task():
     if len(content) > 200:
         return jsonify({"message": "Task content must be 200 characters or fewer."}), 400
 
-    new_task = Task(content=content)
+    new_task = Task(content=content, priority=priority, due_date=due_date, project_id=project_id)
     db.session.add(new_task)
     db.session.commit()
     return jsonify({"message": "Task saved!"}), 201
@@ -72,4 +115,4 @@ def toggle_task(id):
 
 # Run the application
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5050)

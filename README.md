@@ -24,7 +24,7 @@ python backend/app.py
 
 4. Open the frontend:
 - Open `frontend/index.html` in your browser.
-- The frontend calls the API at `http://127.0.0.1:5000`.
+- The frontend calls the API at `http://127.0.0.1:5050`.
 
 ## Project Structure
 
