@@ -17,12 +17,13 @@
             <nav id="sidebar" class="col-md-2 d-none d-md-block bg-dark text-white sidebar py-4">
                 <h4 class="text-center mb-5 fw-bold text-primary"><i class="bi bi-check2-square"></i> Taskify</h4>
                 <ul class="nav flex-column px-3 gap-2">
-                    <li class="nav-item"><a id="dashboardNavLink" class="nav-link text-white rounded bg-primary bg-opacity-25" href="#dashboard"><i
+                    <li class="nav-item"><a id="dashboardNavLink"
+                            class="nav-link text-white rounded bg-primary bg-opacity-25" href="#dashboard"><i
                                 class="bi bi-house me-2"></i> Dashboard</a></li>
-                    <li class="nav-item"><a id="upcomingNavLink" class="nav-link text-white rounded hover-bg" href="#upcoming"><i
-                                class="bi bi-calendar-event me-2"></i> Upcoming</a></li>
-                    <li class="nav-item"><a class="nav-link text-white rounded hover-bg" href="#"><i
-                                class="bi bi-folder me-2"></i> Projects</a></li>
+                    <li class="nav-item"><a id="upcomingNavLink" class="nav-link text-white rounded hover-bg"
+                            href="#upcoming"><i class="bi bi-calendar-event me-2"></i> Upcoming</a></li>
+                    <li class="nav-item"><a id="projectsNavLink" class="nav-link text-white rounded hover-bg"
+                            href="#projects"><i class="bi bi-folder me-2"></i> Projects</a></li>
                 </ul>
             </nav>
 
@@ -48,9 +49,11 @@
                         <div class="col-md-6">
                             <div class="card shadow-sm border-0 bg-warning bg-opacity-10 h-100">
                                 <div class="card-body p-4">
-                                    <h5 class="card-title fw-bold text-warning-emphasis"><i class="bi bi-fire"></i> Urgent
+                                    <h5 class="card-title fw-bold text-warning-emphasis"><i class="bi bi-fire"></i>
+                                        Urgent
                                         Tasks</h5>
-                                    <p class="card-text text-muted" id="urgentWidget">Tasks that need immediate attention
+                                    <p class="card-text text-muted" id="urgentWidget">Tasks that need immediate
+                                        attention
                                         within 24 hours.</p>
                                 </div>
                             </div>
@@ -95,6 +98,25 @@
                         </div>
                     </div>
                 </div>
+                <div id="projectsView" class="d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-outline-secondary border-0 me-3 d-none d-md-block"
+                                onclick="toggleSidebar()">
+                                <i class="bi bi-list fs-3"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <h2 class="fw-bold mb-0">Projects</h2>
+                            <p class="text-muted mb-0">Group your tasks into larger goals.</p>
+                        </div>
+                        <button class="btn btn-primary rounded pill shadow px-4 py-2" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                            <i class="bi bi-folder-plus fw-bold"></i> New Project
+                        </button>
+                    </div>
+
+                    <div class="row" id="projectsListContainer"></div>
+                </div>
             </main>
         </div>
     </div>
@@ -124,12 +146,48 @@
                             <label class="form-label text-muted small fw-bold">DUE DATE</label>
                             <input type="date" id="taskDueDate" class="form-control">
                         </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label text-muted small fw-bold">PROJECT</label>
+                            <select id="taskProject" class="form-select">
+                                <option value="">None (Standalone Task)</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 pb-4 px-4">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary px-4" onclick="addTask()" data-bs-dismiss="modal">Save
                         Task</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="addProjectModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0 bg-primary text-white">
+                    <h5 class="modal-title fw-bold">Create New Project</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <label class="form-label text-muted small fw-bold">PROJECT NAME</label>
+                    <input type="text" id="projectName" class="form-control form-control-lg mb-3"
+                        placeholder="What is the project name?">
+                    <label class="form-label text-muted small fw-bold">PROJECT COLOUR</label>
+                    <select id="projectColour" class="form-select">
+                        <option value="primary" selected>Primary</option>
+                        <option value="secondary">Secondary</option>
+                        <option value="success">Success</option>
+                        <option value="danger">Danger</option>
+                        <option value="warning">Warning</option>
+                        <option value="info">Info</option>
+                    </select>
+                </div>
+                <div class="modal-footer border-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary px-4" onclick="addProject()" data-bs-dismiss="modal">Save
+                        Project</button>
                 </div>
             </div>
         </div>

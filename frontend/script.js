@@ -19,13 +19,14 @@ function refreshCalendar() {
 function setActiveSidebarView(view) {
     const dashboardLink = document.getElementById('dashboardNavLink');
     const upcomingLink = document.getElementById('upcomingNavLink');
+    const projectsLink = document.getElementById('projectsNavLink');
 
-    [dashboardLink, upcomingLink].forEach(link => {
+    [dashboardLink, upcomingLink, projectsLink].forEach(link => {
         if (!link) return;
         link.classList.remove('bg-primary', 'bg-opacity-25');
     });
 
-    const activeLink = view === 'calendar' ? upcomingLink : dashboardLink;
+    const activeLink = view === 'calendar' ? upcomingLink : view === 'projects' ? projectsLink : dashboardLink;
     if (activeLink) {
         activeLink.classList.add('bg-primary', 'bg-opacity-25');
     }
@@ -34,14 +35,18 @@ function setActiveSidebarView(view) {
 function showView(view) {
     const dashboardView = document.getElementById('dashboardView');
     const calendarView = document.getElementById('calendarView');
+    const projectsView = document.getElementById('projectsView');
 
-    if (!dashboardView || !calendarView) {
+    if (!dashboardView || !calendarView || !projectsView) {
         return;
     }
 
     const showingCalendar = view === 'calendar';
-    dashboardView.classList.toggle('d-none', showingCalendar);
+    const showingProjects = view === 'projects';
+
+    dashboardView.classList.toggle('d-none', showingCalendar || showingProjects);
     calendarView.classList.toggle('d-none', !showingCalendar);
+    projectsView.classList.toggle('d-none', !showingProjects);
     setActiveSidebarView(view);
 
     if (showingCalendar) {
@@ -71,7 +76,7 @@ async function addTask() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ content: taskContent, priority: priorityInput.value, due_date: dateInput.value })
+            body: JSON.stringify({ content: taskContent, priority: priorityInput.value, due_date: dateInput.value, project_id: projectInput.value ? parseInt(projectInput.value) : null })
         });
 
         if (!response.ok) {
@@ -210,6 +215,75 @@ async function toggleTask(taskId) {
     }
 }
 
+// Function to load projects and update the UI
+async function loadProjects() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/projects`);
+        if (!response.ok) throw new Error('Failed to load projects.');
+
+        const projects = await response.json();
+
+        const container = document.getElementById('projectsListContainer');
+        if (container) {
+            container.innerHTML = '';
+            if (projects.length === 0) {
+                container.innerHTML = '<div class="text-center p-5 text-muted">No projects yet. Create your first one!</div>';
+            } else {
+                projects.forEach(p => {
+                    container.innerHTML += `
+                    <div class="col-md-4 mb-4">
+                            <div class="card shadow-sm border-0 h-100 border-top border-${p.colour} border-4">
+                                <div class="card-body p-4">
+                                    <h5 class="fw-bold mb-1">${p.name}</h5>
+                                    <p class="text-muted small mb-0"><i class="bi bi-list-check"></i> ${p.task_count} Tasks</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        const projectSelect = document.getElementById('taskProject');
+        if (projectSelect) {
+            projectSelect.innerHTML = '<option value="">None (Standalone Task)</option>';
+            projects.forEach(p => {
+                projectSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`.join('');
+            });
+        }
+    } catch (error) {
+        showError(`Error loading projects. (${error.message})`);
+    }
+}
+
+// Function to add a new project
+async function addProject() {
+    const nameInput = document.getElementById('projectNameInput');
+    const colourInput = document.getElementById('projectColourInput');
+    const projectName = nameInput.value.trim();
+
+    if (!projectName) {
+        showError('Project name cannot be empty.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/projects`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: projectName, colour: colourInput.value })
+        });
+
+        if (!response.ok)throw new Error('Failed to add project.');
+        
+        nameInput.value = '';
+        colourInput.value = 'primary';
+        await loadProjects();
+    } catch (error) {
+        showError(`Error: (${error.message})`);
+    }
+}
+
 // Function to toggle sidebar visibility
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
@@ -235,24 +309,24 @@ function initCalendar() {
                 const tasks = await response.json();
 
                 const calendarEvents = tasks
-                .filter(task => task.due_date)
-                .map(task => {
-                    let eventColour = '#ffc107'; // Default to yellow for Medium priority
-                    if (task.priority === 'High') {
-                        eventColour = '#dc3545'; // Red for High priority
-                    } else if (task.priority === 'Low') {
-                        eventColour = '#198754'; // Green for Low priority
-                    }
+                    .filter(task => task.due_date)
+                    .map(task => {
+                        let eventColour = '#ffc107'; // Default to yellow for Medium priority
+                        if (task.priority === 'High') {
+                            eventColour = '#dc3545'; // Red for High priority
+                        } else if (task.priority === 'Low') {
+                            eventColour = '#198754'; // Green for Low priority
+                        }
 
-                    return {
-                        id: task.id,
-                        title: task.content,
-                        start: task.due_date,
-                        color: eventColour,
-                        classNames: task.completed ? ['opacity-50', 'text-decoration-line-through'] : []
-                    };
-                });
-                
+                        return {
+                            id: task.id,
+                            title: task.content,
+                            start: task.due_date,
+                            color: eventColour,
+                            classNames: task.completed ? ['opacity-50', 'text-decoration-line-through'] : []
+                        };
+                    });
+
                 successCallback(calendarEvents);
             } catch (error) {
                 console.error("Calendar fetch error:", error);
@@ -268,6 +342,7 @@ function initCalendar() {
 // Load tasks when the page loads
 window.onload = () => {
     loadTasks();
+    loadProjects();
     showView('dashboard');
 }
 
@@ -286,4 +361,9 @@ document.getElementById('taskInput').addEventListener('keypress', function (even
         event.preventDefault();
         addTask();
     }
+});
+
+document.getElementById('projectsNavLink').addEventListener('click', function (event) {
+    event.preventDefault();
+    showView('projects');
 });
