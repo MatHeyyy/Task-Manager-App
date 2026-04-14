@@ -32,7 +32,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-5">
                         <div class="d-flex align-items-center">
                             <button class="btn btn-outline-secondary border-0 me-3 d-none d-md-block"
-                                onclick="toggleSidebar()">
+                                onclick="toggleSidebar()" aria-label="Toggle navigation">
                                 <i class="bi bi-list fs-3"></i>
                             </button>
                         </div>
@@ -41,7 +41,7 @@
                             <p class="text-muted mb-0">Here's what's happening today.</p>
                         </div>
                         <button class="btn btn-primary rounded pill shadow px-4 py-2" data-bs-toggle="modal"
-                            data-bs-target="#addTaskModal">
+                            data-bs-target="#addTaskModal" aria-label="Add Task">
                             <i class="bi bi-plus-lg fw-bold"></i> New Task
                         </button>
                     </div>
@@ -82,7 +82,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div class="d-flex align-items-center">
                             <button class="btn btn-outline-secondary border-0 me-3 d-none d-md-block"
-                                onclick="toggleSidebar()">
+                                onclick="toggleSidebar()" aria-label="Toggle navigation">
                                 <i class="bi bi-list fs-3"></i>
                             </button>
                         </div>
@@ -102,7 +102,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div class="d-flex align-items-center">
                             <button class="btn btn-outline-secondary border-0 me-3 d-none d-md-block"
-                                onclick="toggleSidebar()">
+                                onclick="toggleSidebar()" aria-label="Toggle navigation">
                                 <i class="bi bi-list fs-3"></i>
                             </button>
                         </div>
@@ -110,7 +110,7 @@
                             <h2 class="fw-bold mb-0">Projects</h2>
                             <p class="text-muted mb-0">Group your tasks into larger goals.</p>
                         </div>
-                        <button class="btn btn-primary rounded pill shadow px-4 py-2" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                        <button class="btn btn-primary rounded pill shadow px-4 py-2" data-bs-toggle="modal" data-bs-target="#addProjectModal" aria-label="Add Project">
                             <i class="bi bi-folder-plus fw-bold"></i> New Project
                         </button>
                     </div>
@@ -130,12 +130,12 @@
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <label class="form-label text-muted small fw-bold">TASK DETAILS</label>
+                    <label for="taskInput" class="form-label text-muted small fw-bold">TASK DETAILS</label>
                     <input type="text" id="taskInput" class="form-control form-control-lg mb-3"
                         placeholder="What needs to be done?">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted small fw-bold">PRIORITY</label>
+                            <label for="taskPriority" class="form-label text-muted small fw-bold">PRIORITY</label>
                             <select id="taskPriority" class="form-select">
                                 <option value="High">High</option>
                                 <option value="Medium" selected>Medium</option>
@@ -143,11 +143,11 @@
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-muted small fw-bold">DUE DATE</label>
+                            <label for="taskDueDate" class="form-label text-muted small fw-bold">DUE DATE</label>
                             <input type="date" id="taskDueDate" class="form-control">
                         </div>
                         <div class="col-md-12 mb-3">
-                            <label class="form-label text-muted small fw-bold">PROJECT</label>
+                            <label for="taskProject" class="form-label text-muted small fw-bold">PROJECT</label>
                             <select id="taskProject" class="form-select">
                                 <option value="">None (Standalone Task)</option>
                             </select>
@@ -155,8 +155,8 @@
                     </div>
                 </div>
                 <div class="modal-footer border-0 pb-4 px-4">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary px-4" onclick="addTask()" data-bs-dismiss="modal">Save
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal" aria-label="Cancel">Cancel</button>
+                    <button type="button" class="btn btn-primary px-4" onclick="addTask()" data-bs-dismiss="modal" aria-label="Save Task">Save
                         Task</button>
                 </div>
             </div>
@@ -171,10 +171,10 @@
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <label class="form-label text-muted small fw-bold">PROJECT NAME</label>
+                    <label for="projectName" class="form-label text-muted small fw-bold">PROJECT NAME</label>
                     <input type="text" id="projectName" class="form-control form-control-lg mb-3"
                         placeholder="What is the project name?">
-                    <label class="form-label text-muted small fw-bold">PROJECT COLOUR</label>
+                    <label for="projectColour" class="form-label text-muted small fw-bold">PROJECT COLOUR</label>
                     <select id="projectColour" class="form-select">
                         <option value="primary" selected>Primary</option>
                         <option value="secondary">Secondary</option>

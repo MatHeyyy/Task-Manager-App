@@ -5,17 +5,30 @@ const API_BASE_URL = window.location.hostname
 let calendarInstance = null;
 let calendarInitialized = false;
 
+// Utility function to show error messages
 function showError(message) {
     console.error(message);
     alert(message);
 }
 
+//Utility function to sanitise user input to prevent XSS
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&#039;');
+}
+
+// Function to refresh calendar events after task updates
 function refreshCalendar() {
     if (calendarInstance) {
         calendarInstance.refetchEvents();
     }
 }
 
+// Function to set the active state on the sidebar navigation links
 function setActiveSidebarView(view) {
     const dashboardLink = document.getElementById('dashboardNavLink');
     const upcomingLink = document.getElementById('upcomingNavLink');
@@ -32,6 +45,7 @@ function setActiveSidebarView(view) {
     }
 }
 
+// Function to show the selected view and hide others
 function showView(view) {
     const dashboardView = document.getElementById('dashboardView');
     const calendarView = document.getElementById('calendarView');
@@ -71,6 +85,10 @@ async function addTask() {
         return;
     }
 
+    const saveBtn = document.querySelector('#addTaskModal .btn-primary');
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...`;
+
     try {
         const response = await fetch(`${API_BASE_URL}/api/tasks`, {
             method: 'POST',
@@ -91,6 +109,9 @@ async function addTask() {
         await loadTasks();
     } catch (error) {
         showError('Could not connect to backend while adding task.');
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = 'Save Task';
     }
 }
 
@@ -161,7 +182,7 @@ async function loadTasks() {
 
                 li.innerHTML = `
         <input class="form-check-input me-2" type="checkbox" ${isChecked} onclick="toggleTask(${task.id})">
-        <span class="task-text" style="${textStyle}">${task.content}</span>
+        <span class="task-text" style="${textStyle}">${escapeHtml(task.content)}</span>
         <div class="d-flex align-items-center mt-1">
                 <span class="badge bg-${badgeColor} bg-opacity-75 text-white rounded-pill px-2" style="font-size: 0.7em;">${task.priority}</span>
                 ${dateHtml}
@@ -235,7 +256,7 @@ async function loadProjects() {
                     <div class="col-md-4 mb-4">
                             <div class="card shadow-sm border-0 h-100 border-top border-${p.colour} border-4">
                                 <div class="card-body p-4">
-                                    <h5 class="fw-bold mb-1">${p.name}</h5>
+                                    <h5 class="fw-bold mb-1">${escapeHtml(p.name)}</h5>
                                     <p class="text-muted small mb-0"><i class="bi bi-list-check"></i> ${p.task_count} Tasks</p>
                                 </div>
                             </div>
@@ -249,7 +270,7 @@ async function loadProjects() {
         if (projectSelect) {
             projectSelect.innerHTML = '<option value="">None (Standalone Task)</option>';
             projects.forEach(p => {
-                projectSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+                projectSelect.innerHTML += `<option value="${p.id}">${escapeHtml(p.name)}</option>`;
             });
         }
     } catch (error) {
@@ -321,7 +342,7 @@ function initCalendar() {
 
                         return {
                             id: task.id,
-                            title: task.content,
+                            title: escapeHtml(task.content),
                             start: task.due_date,
                             color: eventColour,
                             classNames: task.completed ? ['opacity-50', 'text-decoration-line-through'] : []
