@@ -63,6 +63,7 @@ async function addTask() {
     const input = document.getElementById('taskInput');
     const priorityInput = document.getElementById('taskPriority');
     const dateInput = document.getElementById('taskDueDate');
+    const projectInput = document.getElementById('taskProject');
 
     const taskContent = input.value.trim();
     if (!taskContent) {
@@ -248,7 +249,7 @@ async function loadProjects() {
         if (projectSelect) {
             projectSelect.innerHTML = '<option value="">None (Standalone Task)</option>';
             projects.forEach(p => {
-                projectSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`.join('');
+                projectSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
             });
         }
     } catch (error) {
@@ -258,8 +259,8 @@ async function loadProjects() {
 
 // Function to add a new project
 async function addProject() {
-    const nameInput = document.getElementById('projectNameInput');
-    const colourInput = document.getElementById('projectColourInput');
+    const nameInput = document.getElementById('projectName');
+    const colourInput = document.getElementById('projectColour');
     const projectName = nameInput.value.trim();
 
     if (!projectName) {
