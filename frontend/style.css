@@ -17,11 +17,19 @@ body {
     min-height: 100vh;
 }
 
+[data-bs-theme="dark"] body {
+    background-color: #212529;
+}
+
 .sidebar {
     min-height: 100vh;
     position: sticky;
     top: 0;
     box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+
+[data-bs-theme="dark"] .sidebar {
+    box-shadow: 2px 0 10px rgba(0,0,0,0.5);
 }
 
 @media (min-width: 768px) {
@@ -69,6 +77,10 @@ body {
     transform: translateY(-1px);
 }
 
+[data-bs-theme="dark"] .list-group-item:hover {
+    background-color: #343a40;
+}
+
 .task-text {
     flex-grow: 1;
     margin-left: 10px;
@@ -82,4 +94,12 @@ body {
 
 #calendarView .card {
     border-radius: 1rem;
+}
+
+.task-card-header {
+    background-color: #ffffff;
+}
+
+[data-bs-theme="dark"] .task-card-header {
+    background-color: #212529;
 }
