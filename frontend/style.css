@@ -75,3 +75,11 @@ body {
     transition: color 0.3s ease;
     word-break: break-word;
 }
+
+#calendar {
+    min-height: 650px;
+}
+
+#calendarView .card {
+    border-radius: 1rem;
+}

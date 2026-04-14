@@ -2,9 +2,55 @@ const API_BASE_URL = window.location.hostname
     ? `http://${window.location.hostname}:5050`
     : 'http://127.0.0.1:5050';
 
+let calendarInstance = null;
+let calendarInitialized = false;
+
 function showError(message) {
     console.error(message);
     alert(message);
+}
+
+function refreshCalendar() {
+    if (calendarInstance) {
+        calendarInstance.refetchEvents();
+    }
+}
+
+function setActiveSidebarView(view) {
+    const dashboardLink = document.getElementById('dashboardNavLink');
+    const upcomingLink = document.getElementById('upcomingNavLink');
+
+    [dashboardLink, upcomingLink].forEach(link => {
+        if (!link) return;
+        link.classList.remove('bg-primary', 'bg-opacity-25');
+    });
+
+    const activeLink = view === 'calendar' ? upcomingLink : dashboardLink;
+    if (activeLink) {
+        activeLink.classList.add('bg-primary', 'bg-opacity-25');
+    }
+}
+
+function showView(view) {
+    const dashboardView = document.getElementById('dashboardView');
+    const calendarView = document.getElementById('calendarView');
+
+    if (!dashboardView || !calendarView) {
+        return;
+    }
+
+    const showingCalendar = view === 'calendar';
+    dashboardView.classList.toggle('d-none', showingCalendar);
+    calendarView.classList.toggle('d-none', !showingCalendar);
+    setActiveSidebarView(view);
+
+    if (showingCalendar) {
+        if (!calendarInitialized) {
+            initCalendar();
+        } else if (calendarInstance) {
+            requestAnimationFrame(() => calendarInstance.updateSize());
+        }
+    }
 }
 
 // Function to add a new task
@@ -91,25 +137,23 @@ async function loadTasks() {
             <p class="text-muted mt-3">All caught up!</p>
         </div>
     `;
-            return;
-        }
+        } else {
+            tasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item d-flex align-items-center border-0 mb-2 shadow-sm rounded';
 
-        tasks.forEach(task => {
-            const li = document.createElement('li');
-            li.className = 'list-group-item d-flex align-items-center border-0 mb-2 shadow-sm rounded';
+                const isChecked = task.completed ? 'checked' : '';
+                const textStyle = task.completed ? 'text-decoration: line-through; color: #adb5bd' : '';
+                const badgeColor = task.priority === 'High'
+                    ? 'danger'
+                    : task.priority === 'Low'
+                        ? 'success'
+                        : 'warning';
+                const dateHtml = task.due_date
+                    ? `<small class="text-muted ms-2"><i class="bi bi-calendar-event"></i> ${task.due_date}</small>`
+                    : '';
 
-            const isChecked = task.completed ? 'checked' : '';
-            const textStyle = task.completed ? 'text-decoration: line-through; color: #adb5bd' : '';
-            const badgeColor = task.priority === 'High'
-                ? 'danger'
-                : task.priority === 'Low'
-                    ? 'success'
-                    : 'warning';
-            const dateHtml = task.due_date
-                ? `<small class="text-muted ms-2"><i class="bi bi-calendar-event"></i> ${task.due_date}</small>`
-                : '';
-
-            li.innerHTML = `
+                li.innerHTML = `
         <input class="form-check-input me-2" type="checkbox" ${isChecked} onclick="toggleTask(${task.id})">
         <span class="task-text" style="${textStyle}">${task.content}</span>
         <div class="d-flex align-items-center mt-1">
@@ -120,8 +164,11 @@ async function loadTasks() {
             <i class="bi bi-trash"></i> Delete
         </button>
     `;
-            list.appendChild(li);
-        });
+                list.appendChild(li);
+            });
+        }
+
+        refreshCalendar();
     } catch (error) {
         showError(`Could not connect to backend while loading tasks. (${error.message})`);
     }
@@ -174,7 +221,7 @@ function initCalendar() {
     const calendarEL = document.getElementById('calendar');
     if (!calendarEL) return;
 
-    const calendar = new FullCalendar.Calendar(calendarEL, {
+    calendarInstance = new FullCalendar.Calendar(calendarEL, {
         initialView: 'dayGridMonth',
         headerToolbar: {
             left: 'prev,next today',
@@ -214,14 +261,25 @@ function initCalendar() {
         }
     });
 
-    calendar.render();
+    calendarInitialized = true;
+    calendarInstance.render();
 }
 
 // Load tasks when the page loads
 window.onload = () => {
     loadTasks();
-    initCalendar();
+    showView('dashboard');
 }
+
+document.getElementById('dashboardNavLink').addEventListener('click', function (event) {
+    event.preventDefault();
+    showView('dashboard');
+});
+
+document.getElementById('upcomingNavLink').addEventListener('click', function (event) {
+    event.preventDefault();
+    showView('calendar');
+});
 
 document.getElementById('taskInput').addEventListener('keypress', function (event) {
     if (event.key === 'Enter') {

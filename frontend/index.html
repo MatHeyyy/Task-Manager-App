@@ -17,9 +17,9 @@
             <nav id="sidebar" class="col-md-2 d-none d-md-block bg-dark text-white sidebar py-4">
                 <h4 class="text-center mb-5 fw-bold text-primary"><i class="bi bi-check2-square"></i> Taskify</h4>
                 <ul class="nav flex-column px-3 gap-2">
-                    <li class="nav-item"><a class="nav-link text-white rounded bg-primary bg-opacity-25" href="#"><i
+                    <li class="nav-item"><a id="dashboardNavLink" class="nav-link text-white rounded bg-primary bg-opacity-25" href="#dashboard"><i
                                 class="bi bi-house me-2"></i> Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link text-white rounded hover-bg" href="#"><i
+                    <li class="nav-item"><a id="upcomingNavLink" class="nav-link text-white rounded hover-bg" href="#upcoming"><i
                                 class="bi bi-calendar-event me-2"></i> Upcoming</a></li>
                     <li class="nav-item"><a class="nav-link text-white rounded hover-bg" href="#"><i
                                 class="bi bi-folder me-2"></i> Projects</a></li>
@@ -27,49 +27,72 @@
             </nav>
 
             <main id="mainContent" class="col-md-10 p-4 p-md-5 overflow-auto">
-                <div class="d-flex justify-content-between align-items-center mb-5">
-                    <div class="d-flex align-items-center">
-                        <button class="btn btn-outline-secondary border-0 me-3 d-none d-md-block"
-                            onclick="toggleSidebar()">
-                            <i class="bi bi-list fs-3"></i>
+                <div id="dashboardView">
+                    <div class="d-flex justify-content-between align-items-center mb-5">
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-outline-secondary border-0 me-3 d-none d-md-block"
+                                onclick="toggleSidebar()">
+                                <i class="bi bi-list fs-3"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <h2 class="fw-bold mb-0">Welcome back!</h2>
+                            <p class="text-muted mb-0">Here's what's happening today.</p>
+                        </div>
+                        <button class="btn btn-primary rounded pill shadow px-4 py-2" data-bs-toggle="modal"
+                            data-bs-target="#addTaskModal">
+                            <i class="bi bi-plus-lg fw-bold"></i> New Task
                         </button>
                     </div>
-                    <div>
-                        <h2 class="fw-bold mb-0">Welcome back!</h2>
-                        <p class="text-muted mb-0">Here's what's happening today.</p>
-                    </div>
-                    <button class="btn btn-primary rounded pill shadow px-4 py-2" data-bs-toggle="modal"
-                        data-bs-target="#addTaskModal">
-                        <i class="bi bi-plus-lg fw-bold"></i> New Task
-                    </button>
-                </div>
-                <div class="row mb-5 g-4">
-                    <div class="col-md-6">
-                        <div class="card shadow-sm border-0 bg-warning bg-opacity-10 h-100">
-                            <div class="card-body p-4">
-                                <h5 class="card-title fw-bold text-warning-emphasis"><i class="bi bi-fire"></i> Urgent
-                                    Tasks</h5>
-                                <p class="card-text text-muted" id="urgentWidget">Tasks that need immediate attention
-                                    within 24 hours.</p>
+                    <div class="row mb-5 g-4">
+                        <div class="col-md-6">
+                            <div class="card shadow-sm border-0 bg-warning bg-opacity-10 h-100">
+                                <div class="card-body p-4">
+                                    <h5 class="card-title fw-bold text-warning-emphasis"><i class="bi bi-fire"></i> Urgent
+                                        Tasks</h5>
+                                    <p class="card-text text-muted" id="urgentWidget">Tasks that need immediate attention
+                                        within 24 hours.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card shadow-sm border-0 h-100">
+                                <div class="card-body p-4">
+                                    <h5 class="card-title fw-bold"><i class="bi bi-bar-chart-line"></i> Overview</h5>
+                                    <p class="card-text text-muted" id="overviewWidget">5 tasks remaining today. 3
+                                        completed!</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card shadow-sm border-0 h-100">
-                            <div class="card-body p-4">
-                                <h5 class="card-title fw-bold"><i class="bi bi-bar-chart-line"></i> Overview</h5>
-                                <p class="card-text text-muted" id="overviewWidget">5 tasks remaining today. 3
-                                    completed!</p>
-                            </div>
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
+                            <h5 class="fw-bold mb-0">All Tasks</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <ul id="taskList" class="list-group list-group-flush"></ul>
                         </div>
                     </div>
                 </div>
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
-                        <h5 class="fw-bold mb-0">All Tasks</h5>
+
+                <div id="calendarView" class="d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-outline-secondary border-0 me-3 d-none d-md-block"
+                                onclick="toggleSidebar()">
+                                <i class="bi bi-list fs-3"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <h2 class="fw-bold mb-0">Upcoming</h2>
+                            <p class="text-muted mb-0">See your scheduled tasks on the calendar.</p>
+                        </div>
                     </div>
-                    <div class="card-body p-4">
-                        <ul id="taskList" class="list-group list-group-flush"></ul>
+
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body p-3 p-md-4">
+                            <div id="calendar"></div>
+                        </div>
                     </div>
                 </div>
             </main>
