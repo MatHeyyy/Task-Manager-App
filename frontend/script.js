@@ -33,13 +33,14 @@ function setActiveSidebarView(view) {
     const dashboardLink = document.getElementById('dashboardNavLink');
     const upcomingLink = document.getElementById('upcomingNavLink');
     const projectsLink = document.getElementById('projectsNavLink');
+    const settingsLink = document.getElementById('settingsNavLink');
 
-    [dashboardLink, upcomingLink, projectsLink].forEach(link => {
+    [dashboardLink, upcomingLink, projectsLink, settingsLink].forEach(link => {
         if (!link) return;
         link.classList.remove('bg-primary', 'bg-opacity-25');
     });
 
-    const activeLink = view === 'calendar' ? upcomingLink : view === 'projects' ? projectsLink : dashboardLink;
+    const activeLink = view === 'calendar' ? upcomingLink : view === 'projects' ? projectsLink : view === 'settings' ? settingsLink : dashboardLink;
     if (activeLink) {
         activeLink.classList.add('bg-primary', 'bg-opacity-25');
     }
@@ -50,17 +51,20 @@ function showView(view) {
     const dashboardView = document.getElementById('dashboardView');
     const calendarView = document.getElementById('calendarView');
     const projectsView = document.getElementById('projectsView');
+    const settingsView = document.getElementById('settingsView');
 
-    if (!dashboardView || !calendarView || !projectsView) {
+    if (!dashboardView || !calendarView || !projectsView || !settingsView) {
         return;
     }
 
     const showingCalendar = view === 'calendar';
     const showingProjects = view === 'projects';
+    const showingSettings = view === 'settings';
 
-    dashboardView.classList.toggle('d-none', showingCalendar || showingProjects);
+    dashboardView.classList.toggle('d-none', showingCalendar || showingProjects || showingSettings);
     calendarView.classList.toggle('d-none', !showingCalendar);
     projectsView.classList.toggle('d-none', !showingProjects);
+    settingsView.classList.toggle('d-none', !showingSettings);
     setActiveSidebarView(view);
 
     if (showingCalendar) {
@@ -362,9 +366,13 @@ function initCalendar() {
 }
 
 // Function to apply and save theme preference
-function setTheme(themeName) {
-    document.documentElement.setAttribute('data-bs-theme', themeName);
-    localStorage.setItem('taskify_theme', themeName);
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    localStorage.setItem('taskify_theme', theme);
+    const themeSelect = document.getElementById('themeSelect');
+    if (themeSelect) {
+        themeSelect.value = theme;
+    }
 }
 
 // Function to check saveed preferences and load them
@@ -375,6 +383,7 @@ function loadSavedTheme() {
 
 // Load tasks when the page loads
 window.onload = () => {
+    loadSavedTheme();
     loadTasks();
     loadProjects();
     showView('dashboard');
@@ -400,4 +409,13 @@ document.getElementById('taskInput').addEventListener('keypress', function (even
 document.getElementById('projectsNavLink').addEventListener('click', function (event) {
     event.preventDefault();
     showView('projects');
+});
+
+document.getElementById('settingsNavLink').addEventListener('click', function (event) {
+    event.preventDefault();
+    showView('settings');
+});
+
+document.getElementById('themeSelect').addEventListener('change', function (event) {
+    setTheme(event.target.value);
 });
