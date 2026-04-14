@@ -169,8 +169,59 @@ function toggleSidebar() {
     sidebar.classList.toggle('is-collapsed');
 }
 
+// Function to initialise the calendar
+function initCalendar() {
+    const calendarEL = document.getElementById('calendar');
+    if (!calendarEL) return;
+
+    const calendar = new FullCalendar.Calendar(calendarEL, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek'
+        },
+        height: 650,
+        events: async function (fetchInfo, successCallback, failureCallback) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/tasks`);
+                const tasks = await response.json();
+
+                const calendarEvents = tasks
+                .filter(task => task.due_date)
+                .map(task => {
+                    let eventColour = '#ffc107'; // Default to yellow for Medium priority
+                    if (task.priority === 'High') {
+                        eventColour = '#dc3545'; // Red for High priority
+                    } else if (task.priority === 'Low') {
+                        eventColour = '#198754'; // Green for Low priority
+                    }
+
+                    return {
+                        id: task.id,
+                        title: task.content,
+                        start: task.due_date,
+                        color: eventColour,
+                        classNames: task.completed ? ['opacity-50', 'text-decoration-line-through'] : []
+                    };
+                });
+                
+                successCallback(calendarEvents);
+            } catch (error) {
+                console.error("Calendar fetch error:", error);
+                failureCallback(error);
+            }
+        }
+    });
+
+    calendar.render();
+}
+
 // Load tasks when the page loads
-window.onload = loadTasks;
+window.onload = () => {
+    loadTasks();
+    initCalendar();
+}
 
 document.getElementById('taskInput').addEventListener('keypress', function (event) {
     if (event.key === 'Enter') {
