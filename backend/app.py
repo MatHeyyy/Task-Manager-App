@@ -113,6 +113,19 @@ def toggle_task(id):
     db.session.commit()
     return jsonify({"message": "Task updated!", "completed": task.complete}), 200
 
+
+@app.route('/api/data', methods=['DELETE'])
+def delete_all_data():
+    deleted_tasks = Task.query.delete()
+    deleted_projects = Project.query.delete()
+    db.session.commit()
+
+    return jsonify({
+        "message": "All data deleted.",
+        "deleted_tasks": deleted_tasks,
+        "deleted_projects": deleted_projects
+    }), 200
+
 # Run the application
 if __name__ == '__main__':
     app.run(debug=True, port=5050)

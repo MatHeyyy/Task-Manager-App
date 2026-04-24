@@ -310,6 +310,29 @@ async function addProject() {
     }
 }
 
+// Function to delete all data (tasks + projects)
+async function deleteAllData() {
+    const confirmed = window.confirm('Delete all tasks and projects? This cannot be undone.');
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/data`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            showError('Failed to delete all data.');
+            return;
+        }
+
+        await Promise.all([loadTasks(), loadProjects()]);
+    } catch (error) {
+        showError('Could not connect to backend while deleting all data.');
+    }
+}
+
 // Function to toggle sidebar visibility
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
