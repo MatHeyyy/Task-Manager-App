@@ -4,6 +4,7 @@ const API_BASE_URL = window.location.hostname
 
 let calendarInstance = null;
 let calendarInitialized = false;
+let editingTaskId = null;
 
 // Utility function to show error messages
 function showError(message) {
@@ -110,6 +111,7 @@ async function addTask() {
         input.value = '';
         priorityInput.value = 'Medium';
         dateInput.value = '';
+        projectInput.value = '';
         await loadTasks();
     } catch (error) {
         showError('Could not connect to backend while adding task.');
@@ -194,6 +196,9 @@ async function loadTasks() {
         <button class="btn btn-outline-danger btn-sm border-0" onclick="deleteTask(${task.id})">
             <i class="bi bi-trash"></i> Delete
         </button>
+        <button class="btn btn-outline-secondary btn-sm border-0" onclick="openEditTask(${task.id})" aria-label="Edit task">
+            <i class="bi bi-pencil"></i> Edit
+        </button>
     `;
                 list.appendChild(li);
             });
@@ -202,6 +207,68 @@ async function loadTasks() {
         refreshCalendar();
     } catch (error) {
         showError(`Could not connect to backend while loading tasks. (${error.message})`);
+    }
+}
+
+function openEditTask(taskId) {
+    fetch(`${API_BASE_URL}/api/tasks`)
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to load tasks.');
+            return response.json();
+        })
+        .then(tasks => {
+            const task = tasks.find(item => item.id === taskId);
+            if (!task) {
+                showError('Task not found.');
+                return;
+            }
+
+            editingTaskId = taskId;
+            document.getElementById('editTaskInput').value = task.content;
+            document.getElementById('editTaskPriority').value = task.priority;
+            document.getElementById('editTaskDueDate').value = task.due_date || '';
+            document.getElementById('editTaskProject').value = task.project_id || '';
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('editTaskModal')).show();
+        })
+        .catch(() => showError('Could not load task details.'));
+}
+
+async function updateTask() {
+    if (editingTaskId === null) return;
+
+    const saveButton = document.getElementById('updateTaskButton');
+    const content = document.getElementById('editTaskInput').value.trim();
+    if (!content) {
+        showError('Task cannot be empty.');
+        return;
+    }
+
+    saveButton.disabled = true;
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/tasks/${editingTaskId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                content,
+                priority: document.getElementById('editTaskPriority').value,
+                due_date: document.getElementById('editTaskDueDate').value,
+                project_id: document.getElementById('editTaskProject').value || null
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            showError(error.message || 'Failed to update task.');
+            return;
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById('editTaskModal')).hide();
+        editingTaskId = null;
+        await Promise.all([loadTasks(), loadProjects()]);
+    } catch (error) {
+        showError('Could not connect to backend while updating task.');
+    } finally {
+        saveButton.disabled = false;
     }
 }
 
@@ -271,10 +338,17 @@ async function loadProjects() {
         }
 
         const projectSelect = document.getElementById('taskProject');
+        const editProjectSelect = document.getElementById('editTaskProject');
         if (projectSelect) {
-            projectSelect.innerHTML = '<option value="">None (Standalone Task)</option>';
+            const options = '<option value="">None (Standalone Task)</option>' + projects
+                .map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`)
+                .join('');
+            projectSelect.innerHTML = options;
+        }
+        if (editProjectSelect) {
+            editProjectSelect.innerHTML = '<option value="">None (Standalone Task)</option>';
             projects.forEach(p => {
-                projectSelect.innerHTML += `<option value="${p.id}">${escapeHtml(p.name)}</option>`;
+                editProjectSelect.innerHTML += `<option value="${p.id}">${escapeHtml(p.name)}</option>`;
             });
         }
     } catch (error) {
