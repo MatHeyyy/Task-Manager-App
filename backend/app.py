@@ -1,3 +1,5 @@
+from datetime import date
+
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -108,10 +110,56 @@ def toggle_task(id):
 
     if not task:
         return jsonify({"message": "Task not found!"}), 404
-    
+
+    if request.is_json:
+        data = request.get_json(silent=True) or {}
+        content = (data.get('content') or '').strip()
+        priority = (data.get('priority') or '').strip()
+        due_date = (data.get('due_date') or '').strip()
+        project_id = data.get('project_id')
+
+        if not content:
+            return jsonify({"message": "Task content cannot be empty."}), 400
+        if len(content) > 200:
+            return jsonify({"message": "Task content must be 200 characters or fewer."}), 400
+        if priority not in {'High', 'Medium', 'Low'}:
+            return jsonify({"message": "Priority must be High, Medium, or Low."}), 400
+        if due_date:
+            try:
+                date.fromisoformat(due_date)
+            except ValueError:
+                return jsonify({"message": "Due date must be a valid date."}), 400
+        if project_id is not None:
+            try:
+                project_id = int(project_id)
+            except (TypeError, ValueError):
+                return jsonify({"message": "Project must be valid."}), 400
+            if not db.session.get(Project, project_id):
+                return jsonify({"message": "Project not found."}), 400
+
+        task.content = content
+        task.priority = priority
+        task.due_date = due_date or None
+        task.project_id = project_id
+        db.session.commit()
+        return jsonify({"message": "Task updated!"}), 200
+
     task.complete = not task.complete
     db.session.commit()
     return jsonify({"message": "Task updated!", "completed": task.complete}), 200
+
+
+@app.route('/api/data', methods=['DELETE'])
+def delete_all_data():
+    deleted_tasks = Task.query.delete()
+    deleted_projects = Project.query.delete()
+    db.session.commit()
+
+    return jsonify({
+        "message": "All data deleted.",
+        "deleted_tasks": deleted_tasks,
+        "deleted_projects": deleted_projects
+    }), 200
 
 # Run the application
 if __name__ == '__main__':

@@ -4,6 +4,7 @@ const API_BASE_URL = window.location.hostname
 
 let calendarInstance = null;
 let calendarInitialized = false;
+let editingTaskId = null;
 
 // Utility function to show error messages
 function showError(message) {
@@ -33,13 +34,14 @@ function setActiveSidebarView(view) {
     const dashboardLink = document.getElementById('dashboardNavLink');
     const upcomingLink = document.getElementById('upcomingNavLink');
     const projectsLink = document.getElementById('projectsNavLink');
+    const settingsLink = document.getElementById('settingsNavLink');
 
-    [dashboardLink, upcomingLink, projectsLink].forEach(link => {
+    [dashboardLink, upcomingLink, projectsLink, settingsLink].forEach(link => {
         if (!link) return;
         link.classList.remove('bg-primary', 'bg-opacity-25');
     });
 
-    const activeLink = view === 'calendar' ? upcomingLink : view === 'projects' ? projectsLink : dashboardLink;
+    const activeLink = view === 'calendar' ? upcomingLink : view === 'projects' ? projectsLink : view === 'settings' ? settingsLink : dashboardLink;
     if (activeLink) {
         activeLink.classList.add('bg-primary', 'bg-opacity-25');
     }
@@ -50,17 +52,20 @@ function showView(view) {
     const dashboardView = document.getElementById('dashboardView');
     const calendarView = document.getElementById('calendarView');
     const projectsView = document.getElementById('projectsView');
+    const settingsView = document.getElementById('settingsView');
 
-    if (!dashboardView || !calendarView || !projectsView) {
+    if (!dashboardView || !calendarView || !projectsView || !settingsView) {
         return;
     }
 
     const showingCalendar = view === 'calendar';
     const showingProjects = view === 'projects';
+    const showingSettings = view === 'settings';
 
-    dashboardView.classList.toggle('d-none', showingCalendar || showingProjects);
+    dashboardView.classList.toggle('d-none', showingCalendar || showingProjects || showingSettings);
     calendarView.classList.toggle('d-none', !showingCalendar);
     projectsView.classList.toggle('d-none', !showingProjects);
+    settingsView.classList.toggle('d-none', !showingSettings);
     setActiveSidebarView(view);
 
     if (showingCalendar) {
@@ -106,6 +111,7 @@ async function addTask() {
         input.value = '';
         priorityInput.value = 'Medium';
         dateInput.value = '';
+        projectInput.value = '';
         await loadTasks();
     } catch (error) {
         showError('Could not connect to backend while adding task.');
@@ -190,6 +196,9 @@ async function loadTasks() {
         <button class="btn btn-outline-danger btn-sm border-0" onclick="deleteTask(${task.id})">
             <i class="bi bi-trash"></i> Delete
         </button>
+        <button class="btn btn-outline-secondary btn-sm border-0" onclick="openEditTask(${task.id})" aria-label="Edit task">
+            <i class="bi bi-pencil"></i> Edit
+        </button>
     `;
                 list.appendChild(li);
             });
@@ -198,6 +207,68 @@ async function loadTasks() {
         refreshCalendar();
     } catch (error) {
         showError(`Could not connect to backend while loading tasks. (${error.message})`);
+    }
+}
+
+function openEditTask(taskId) {
+    fetch(`${API_BASE_URL}/api/tasks`)
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to load tasks.');
+            return response.json();
+        })
+        .then(tasks => {
+            const task = tasks.find(item => item.id === taskId);
+            if (!task) {
+                showError('Task not found.');
+                return;
+            }
+
+            editingTaskId = taskId;
+            document.getElementById('editTaskInput').value = task.content;
+            document.getElementById('editTaskPriority').value = task.priority;
+            document.getElementById('editTaskDueDate').value = task.due_date || '';
+            document.getElementById('editTaskProject').value = task.project_id || '';
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('editTaskModal')).show();
+        })
+        .catch(() => showError('Could not load task details.'));
+}
+
+async function updateTask() {
+    if (editingTaskId === null) return;
+
+    const saveButton = document.getElementById('updateTaskButton');
+    const content = document.getElementById('editTaskInput').value.trim();
+    if (!content) {
+        showError('Task cannot be empty.');
+        return;
+    }
+
+    saveButton.disabled = true;
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/tasks/${editingTaskId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                content,
+                priority: document.getElementById('editTaskPriority').value,
+                due_date: document.getElementById('editTaskDueDate').value,
+                project_id: document.getElementById('editTaskProject').value || null
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            showError(error.message || 'Failed to update task.');
+            return;
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById('editTaskModal')).hide();
+        editingTaskId = null;
+        await Promise.all([loadTasks(), loadProjects()]);
+    } catch (error) {
+        showError('Could not connect to backend while updating task.');
+    } finally {
+        saveButton.disabled = false;
     }
 }
 
@@ -267,10 +338,17 @@ async function loadProjects() {
         }
 
         const projectSelect = document.getElementById('taskProject');
+        const editProjectSelect = document.getElementById('editTaskProject');
         if (projectSelect) {
-            projectSelect.innerHTML = '<option value="">None (Standalone Task)</option>';
+            const options = '<option value="">None (Standalone Task)</option>' + projects
+                .map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`)
+                .join('');
+            projectSelect.innerHTML = options;
+        }
+        if (editProjectSelect) {
+            editProjectSelect.innerHTML = '<option value="">None (Standalone Task)</option>';
             projects.forEach(p => {
-                projectSelect.innerHTML += `<option value="${p.id}">${escapeHtml(p.name)}</option>`;
+                editProjectSelect.innerHTML += `<option value="${p.id}">${escapeHtml(p.name)}</option>`;
             });
         }
     } catch (error) {
@@ -303,6 +381,29 @@ async function addProject() {
         await loadProjects();
     } catch (error) {
         showError(`Error: (${error.message})`);
+    }
+}
+
+// Function to delete all data (tasks + projects)
+async function deleteAllData() {
+    const confirmed = window.confirm('Delete all tasks and projects? This cannot be undone.');
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/data`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            showError('Failed to delete all data.');
+            return;
+        }
+
+        await Promise.all([loadTasks(), loadProjects()]);
+    } catch (error) {
+        showError('Could not connect to backend while deleting all data.');
     }
 }
 
@@ -361,8 +462,25 @@ function initCalendar() {
     calendarInstance.render();
 }
 
+// Function to apply and save theme preference
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    localStorage.setItem('taskify_theme', theme);
+    const themeSelect = document.getElementById('themeSelect');
+    if (themeSelect) {
+        themeSelect.value = theme;
+    }
+}
+
+// Function to check saveed preferences and load them
+function loadSavedTheme() {
+    const savedTheme = localStorage.getItem('taskify_theme') || 'light';
+    setTheme(savedTheme);
+}
+
 // Load tasks when the page loads
 window.onload = () => {
+    loadSavedTheme();
     loadTasks();
     loadProjects();
     showView('dashboard');
@@ -388,4 +506,13 @@ document.getElementById('taskInput').addEventListener('keypress', function (even
 document.getElementById('projectsNavLink').addEventListener('click', function (event) {
     event.preventDefault();
     showView('projects');
+});
+
+document.getElementById('settingsNavLink').addEventListener('click', function (event) {
+    event.preventDefault();
+    showView('settings');
+});
+
+document.getElementById('themeSelect').addEventListener('change', function (event) {
+    setTheme(event.target.value);
 });

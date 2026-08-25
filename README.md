@@ -41,6 +41,7 @@ instance/database.db  # SQLite database file (created automatically)
 - `POST /api/tasks` -> creates a task
 	- JSON body: `{ "content": "Your task" }`
 - `DELETE /api/tasks/<id>` -> deletes a task by id
+- `DELETE /api/data` -> deletes all tasks and projects
 
 ## Notes
 
