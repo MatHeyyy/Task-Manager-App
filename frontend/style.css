@@ -1,4 +1,18 @@
 
+:root {
+    --ink: #17212b;
+    --muted: #71808f;
+    --canvas: #f4f7f6;
+    --surface: #ffffff;
+    --line: #e3ebe8;
+    --teal: #087f78;
+    --teal-dark: #05635f;
+    --coral: #e87961;
+    --sidebar: #172b35;
+    --sidebar-muted: #a9bbc0;
+    --shadow: 0 14px 35px rgba(23, 43, 53, 0.08);
+}
+
 #sidebar {
     transition: flex-basis 0.38s cubic-bezier(0.22, 1, 0.36, 1),
         max-width 0.38s cubic-bezier(0.22, 1, 0.36, 1),
@@ -13,23 +27,53 @@
 }
 
 body {
-    background-color: #f8f9fa; /* Matches Bootstrap's bg-light */
+    background-color: var(--canvas);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
     min-height: 100vh;
+    background-image: radial-gradient(circle at 92% 4%, rgba(8, 127, 120, 0.08), transparent 22rem);
 }
 
 [data-bs-theme="dark"] body {
-    background-color: #212529;
+    background-color: #111b20;
+    color: #edf4f2;
+    background-image: radial-gradient(circle at 92% 4%, rgba(65, 188, 177, 0.1), transparent 22rem);
 }
 
 .sidebar {
+    background: var(--sidebar) !important;
     min-height: 100vh;
     position: sticky;
     top: 0;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    box-shadow: 12px 0 30px rgba(23, 43, 53, 0.08);
+    z-index: 2;
+}
+
+.sidebar h4 {
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: -0.04em;
+}
+
+.sidebar h4.text-primary {
+    color: #62d0c2 !important;
+}
+
+.sidebar .nav-link {
+    color: var(--sidebar-muted) !important;
+    font-weight: 500;
+    padding: 0.75rem 0.9rem;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.bg-primary {
+    background-color: rgba(98, 208, 194, 0.14) !important;
+    color: #ffffff !important;
+    transform: translateX(3px);
 }
 
 [data-bs-theme="dark"] .sidebar {
-    box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+    box-shadow: 12px 0 30px rgba(0, 0, 0, 0.2);
 }
 
 @media (min-width: 768px) {
@@ -57,6 +101,65 @@ body {
     }
 }
 
+h2, h5, h6, .modal-title {
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: -0.035em;
+}
+
+h2 {
+    font-size: clamp(1.7rem, 2.4vw, 2.35rem);
+}
+
+.text-muted {
+    color: var(--muted) !important;
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--teal);
+    --bs-btn-border-color: var(--teal);
+    --bs-btn-hover-bg: var(--teal-dark);
+    --bs-btn-hover-border-color: var(--teal-dark);
+    --bs-btn-active-bg: var(--teal-dark);
+    --bs-btn-active-border-color: var(--teal-dark);
+}
+
+.card {
+    background-color: var(--surface);
+    border: 1px solid var(--line) !important;
+    border-radius: 1rem;
+    box-shadow: var(--shadow) !important;
+}
+
+.card-body {
+    padding: 1.35rem;
+}
+
+.card-title {
+    color: var(--ink);
+}
+
+[data-bs-theme="dark"] .card,
+[data-bs-theme="dark"] .task-card-header {
+    background-color: #1b2a31;
+    border-color: #2a3d44 !important;
+}
+
+[data-bs-theme="dark"] .card-title,
+[data-bs-theme="dark"] .task-card-header,
+[data-bs-theme="dark"] h2,
+[data-bs-theme="dark"] h5,
+[data-bs-theme="dark"] h6 {
+    color: #edf4f2;
+}
+
+.bg-warning.bg-opacity-10 {
+    background-color: rgba(232, 121, 97, 0.12) !important;
+}
+
+.text-warning-emphasis {
+    color: #b6533f !important;
+}
+
 .nav-link.hover-bg {
     transition: background-color 0.2s ease-in-out;
 }
@@ -66,19 +169,36 @@ body {
 }
 
 .list-group-item {
-    border-left: none;
-    border-right: none;
-    transition: all 0.2s ease;
-    cursor: pointer;
+    background: var(--surface);
+    border: 1px solid var(--line) !important;
+    border-radius: 0.8rem !important;
+    cursor: default;
+    gap: 0.5rem;
+    min-height: 4.25rem;
+    padding: 0.8rem 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .list-group-item:hover {
-    background-color: #f8f9fa;
-    transform: translateY(-1px);
+    background-color: var(--surface);
+    border-color: rgba(8, 127, 120, 0.35) !important;
+    box-shadow: 0 8px 20px rgba(23, 43, 53, 0.08);
+    transform: translateY(-2px);
 }
 
 [data-bs-theme="dark"] .list-group-item:hover {
-    background-color: #343a40;
+    background-color: #20333a;
+}
+
+.list-group-item .form-check-input {
+    border-color: #a7b9b6;
+    height: 1.15rem;
+    width: 1.15rem;
+}
+
+.list-group-item .form-check-input:checked {
+    background-color: var(--teal);
+    border-color: var(--teal);
 }
 
 .task-text {
@@ -86,6 +206,16 @@ body {
     margin-left: 10px;
     transition: color 0.3s ease;
     word-break: break-word;
+}
+
+.list-group-item .btn {
+    flex: 0 0 auto;
+    opacity: 0.7;
+    transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.list-group-item:hover .btn {
+    opacity: 1;
 }
 
 #calendar {
@@ -97,9 +227,59 @@ body {
 }
 
 .task-card-header {
-    background-color: #ffffff;
+    background-color: var(--surface);
+    border-bottom: 1px solid var(--line) !important;
 }
 
-[data-bs-theme="dark"] .task-card-header {
-    background-color: #212529;
+.modal-content {
+    background-color: var(--surface);
+    border: 1px solid var(--line) !important;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.modal-header.bg-primary {
+    background: var(--sidebar) !important;
+}
+
+@media (max-width: 767.98px) {
+    #mainContent {
+        padding: 1.25rem !important;
+    }
+
+    #dashboardView > .d-flex,
+    #projectsView > .d-flex,
+    #calendarView > .d-flex,
+    #settingsView > .d-flex {
+        align-items: flex-start !important;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 2rem !important;
+    }
+
+    #dashboardView > .d-flex > div:nth-child(2),
+    #projectsView > .d-flex > div:nth-child(2),
+    #calendarView > .d-flex > div:nth-child(2),
+    #settingsView > .d-flex > div:nth-child(2) {
+        flex: 1 1 12rem;
+    }
+
+    .list-group-item {
+        align-items: flex-start !important;
+        flex-wrap: wrap;
+    }
+
+    .list-group-item .task-text {
+        min-width: calc(100% - 3rem);
+    }
+
+    .list-group-item > .d-flex {
+        margin-left: 1.7rem;
+        order: 3;
+        width: 100%;
+    }
+
+    .list-group-item > .btn {
+        margin-left: auto;
+    }
 }
