@@ -5,6 +5,24 @@ const API_BASE_URL = window.location.hostname
 let calendarInstance = null;
 let calendarInitialized = false;
 let editingTaskId = null;
+let editingProjectId = null;
+let projectLookup = {};
+
+function getProjectAccentClass(colour) {
+    const accents = {
+        primary: 'project-accent-primary',
+        blue: 'project-accent-primary',
+        secondary: 'project-accent-secondary',
+        success: 'project-accent-success',
+        green: 'project-accent-success',
+        danger: 'project-accent-danger',
+        red: 'project-accent-danger',
+        warning: 'project-accent-warning',
+        yellow: 'project-accent-warning',
+        info: 'project-accent-info'
+    };
+    return accents[(colour || 'primary').toLowerCase()] || accents.primary;
+}
 
 // Utility function to show error messages
 function showError(message) {
@@ -185,6 +203,10 @@ async function loadTasks() {
                 const dateHtml = task.due_date
                     ? `<small class="text-muted ms-2"><i class="bi bi-calendar-event"></i> ${task.due_date}</small>`
                     : '';
+                const project = projectLookup[task.project_id];
+                const projectHtml = project
+                    ? `<small class="project-label ${getProjectAccentClass(project.colour)}"><i class="bi bi-folder2"></i> ${escapeHtml(project.name)}</small>`
+                    : '';
 
                 li.innerHTML = `
         <input class="form-check-input me-2" type="checkbox" ${isChecked} onclick="toggleTask(${task.id})">
@@ -192,6 +214,7 @@ async function loadTasks() {
         <div class="d-flex align-items-center mt-1">
                 <span class="badge bg-${badgeColor} bg-opacity-75 text-white rounded-pill px-2" style="font-size: 0.7em;">${task.priority}</span>
                 ${dateHtml}
+            ${projectHtml}
         </div>
         <button class="btn btn-outline-danger btn-sm border-0" onclick="deleteTask(${task.id})">
             <i class="bi bi-trash"></i> Delete
@@ -315,6 +338,7 @@ async function loadProjects() {
         if (!response.ok) throw new Error('Failed to load projects.');
 
         const projects = await response.json();
+        projectLookup = Object.fromEntries(projects.map(project => [project.id, project]));
 
         const container = document.getElementById('projectsListContainer');
         if (container) {
@@ -325,10 +349,21 @@ async function loadProjects() {
                 projects.forEach(p => {
                     container.innerHTML += `
                     <div class="col-md-4 mb-4">
-                            <div class="card shadow-sm border-0 h-100 border-top border-${p.colour} border-4">
+                            <div class="card project-card ${getProjectAccentClass(p.colour)} shadow-sm h-100">
                                 <div class="card-body p-4">
-                                    <h5 class="fw-bold mb-1">${escapeHtml(p.name)}</h5>
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <span class="project-colour-dot" aria-hidden="true"></span>
+                                        <h5 class="fw-bold mb-0">${escapeHtml(p.name)}</h5>
+                                    </div>
                                     <p class="text-muted small mb-0"><i class="bi bi-list-check"></i> ${p.task_count} Tasks</p>
+                                    <div class="project-actions mt-3">
+                                        <button class="btn btn-sm btn-outline-secondary" onclick="openEditProject(${p.id})" title="Edit project">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteProject(${p.id})" title="Delete project">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -353,6 +388,82 @@ async function loadProjects() {
         }
     } catch (error) {
         showError(`Error loading projects. (${error.message})`);
+    }
+}
+
+function openEditProject(projectId) {
+    const project = projectLookup[projectId];
+    if (!project) {
+        showError('Project not found.');
+        return;
+    }
+
+    editingProjectId = projectId;
+    document.getElementById('editProjectName').value = project.name;
+    document.getElementById('editProjectColour').value = getProjectAccentClass(project.colour)
+        .replace('project-accent-', '')
+        .replace('primary', 'primary')
+        .replace('success', 'success')
+        .replace('danger', 'danger')
+        .replace('warning', 'warning');
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('editProjectModal')).show();
+}
+
+async function updateProject() {
+    if (editingProjectId === null) return;
+
+    const saveButton = document.getElementById('updateProjectButton');
+    const name = document.getElementById('editProjectName').value.trim();
+    if (!name) {
+        showError('Project name cannot be empty.');
+        return;
+    }
+
+    saveButton.disabled = true;
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/projects/${editingProjectId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name,
+                colour: document.getElementById('editProjectColour').value
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            showError(error.message || 'Failed to update project.');
+            return;
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById('editProjectModal')).hide();
+        editingProjectId = null;
+        await Promise.all([loadProjects(), loadTasks()]);
+    } catch (error) {
+        showError('Could not connect to backend while updating project.');
+    } finally {
+        saveButton.disabled = false;
+    }
+}
+
+async function deleteProject(projectId) {
+    const project = projectLookup[projectId];
+    if (!project) return;
+
+    const confirmed = window.confirm(`Delete "${project.name}"? Its tasks will be kept as standalone tasks.`);
+    if (!confirmed) return;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/projects/${projectId}`, { method: 'DELETE' });
+        if (!response.ok) {
+            const error = await response.json();
+            showError(error.message || 'Failed to delete project.');
+            return;
+        }
+
+        await Promise.all([loadProjects(), loadTasks()]);
+    } catch (error) {
+        showError('Could not connect to backend while deleting project.');
     }
 }
 
@@ -479,10 +590,10 @@ function loadSavedTheme() {
 }
 
 // Load tasks when the page loads
-window.onload = () => {
+window.onload = async () => {
     loadSavedTheme();
-    loadTasks();
-    loadProjects();
+    await loadProjects();
+    await loadTasks();
     showView('dashboard');
 }
 

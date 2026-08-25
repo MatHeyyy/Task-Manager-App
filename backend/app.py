@@ -13,6 +13,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+PROJECT_COLOURS = {'primary', 'secondary', 'success', 'danger', 'warning', 'info'}
+
 
 # Define the Project model
 class Project(db.Model):
@@ -56,10 +58,49 @@ def add_project():
     if len(name) > 100:
         return jsonify({"message": "Project name must be 100 characters or fewer."}), 400
 
+    if colour not in PROJECT_COLOURS:
+        return jsonify({"message": "Project colour is invalid."}), 400
+
     new_project = Project(name=name, colour=colour)
     db.session.add(new_project)
     db.session.commit()
     return jsonify({"message": "Project created!"}), 201
+
+@app.route('/api/projects/<int:id>', methods=['PATCH'])
+def update_project(id):
+    project = db.session.get(Project, id)
+    if not project:
+        return jsonify({"message": "Project not found!"}), 404
+    if not request.is_json:
+        return jsonify({"message": "Request must be JSON."}), 400
+
+    data = request.get_json(silent=True) or {}
+    name = (data.get('name') or '').strip()
+    colour = (data.get('colour') or '').strip()
+
+    if not name:
+        return jsonify({"message": "Project name cannot be empty."}), 400
+    if len(name) > 100:
+        return jsonify({"message": "Project name must be 100 characters or fewer."}), 400
+    if colour not in PROJECT_COLOURS:
+        return jsonify({"message": "Project colour is invalid."}), 400
+
+    project.name = name
+    project.colour = colour
+    db.session.commit()
+    return jsonify({"message": "Project updated!"}), 200
+
+@app.route('/api/projects/<int:id>', methods=['DELETE'])
+def delete_project(id):
+    project = db.session.get(Project, id)
+    if not project:
+        return jsonify({"message": "Project not found!"}), 404
+
+    for task in project.tasks:
+        task.project_id = None
+    db.session.delete(project)
+    db.session.commit()
+    return jsonify({"message": "Project deleted!"}), 200
 
 # --- TASK ROUTES ---
 
