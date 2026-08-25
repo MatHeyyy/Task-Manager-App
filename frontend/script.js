@@ -1,7 +1,9 @@
+// Use the current host in the browser, while keeping local-file development working.
 const API_BASE_URL = window.location.hostname
     ? `http://${window.location.hostname}:5050`
     : 'http://127.0.0.1:5050';
 
+// Runtime state shared by views, modals, and API refreshes.
 let calendarInstance = null;
 let calendarInitialized = false;
 let editingTaskId = null;
@@ -9,6 +11,7 @@ let editingProjectId = null;
 let projectLookup = {};
 
 function getProjectAccentClass(colour) {
+    // Older records may use color names, so normalize both old and new values.
     const accents = {
         primary: 'project-accent-primary',
         blue: 'project-accent-primary',
@@ -24,13 +27,13 @@ function getProjectAccentClass(colour) {
     return accents[(colour || 'primary').toLowerCase()] || accents.primary;
 }
 
-// Utility function to show error messages
+// Keep user-facing errors consistent while retaining details in the console.
 function showError(message) {
     console.error(message);
     alert(message);
 }
 
-//Utility function to sanitise user input to prevent XSS
+// Escape API-provided text before inserting it into generated HTML.
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/&/g, '&amp;')
@@ -40,14 +43,14 @@ function escapeHtml(str) {
               .replace(/'/g, '&#039;');
 }
 
-// Function to refresh calendar events after task updates
+// Refresh calendar data without recreating the calendar instance.
 function refreshCalendar() {
     if (calendarInstance) {
         calendarInstance.refetchEvents();
     }
 }
 
-// Function to set the active state on the sidebar navigation links
+// Keep the active navigation highlight aligned with the visible view.
 function setActiveSidebarView(view) {
     const dashboardLink = document.getElementById('dashboardNavLink');
     const upcomingLink = document.getElementById('upcomingNavLink');
@@ -65,7 +68,7 @@ function setActiveSidebarView(view) {
     }
 }
 
-// Function to show the selected view and hide others
+// Show one application view at a time and resize the calendar when needed.
 function showView(view) {
     const dashboardView = document.getElementById('dashboardView');
     const calendarView = document.getElementById('calendarView');
@@ -95,7 +98,7 @@ function showView(view) {
     }
 }
 
-// Function to add a new task
+// Create a task, reset the form, and refresh the dashboard.
 async function addTask() {
     const input = document.getElementById('taskInput');
     const priorityInput = document.getElementById('taskPriority');
@@ -139,7 +142,7 @@ async function addTask() {
     }
 }
 
-// Function to load tasks from the backend
+// Load tasks and rebuild dashboard counts and task-row markup.
 async function loadTasks() {
     try {
         const response = await fetch(`${API_BASE_URL}/api/tasks`);
@@ -233,6 +236,7 @@ async function loadTasks() {
     }
 }
 
+// Fetch the selected task and populate the editing dialog.
 function openEditTask(taskId) {
     fetch(`${API_BASE_URL}/api/tasks`)
         .then(response => {
@@ -256,6 +260,7 @@ function openEditTask(taskId) {
         .catch(() => showError('Could not load task details.'));
 }
 
+// Save task metadata, then refresh the list, projects, and calendar.
 async function updateTask() {
     if (editingTaskId === null) return;
 
@@ -295,7 +300,7 @@ async function updateTask() {
     }
 }
 
-// Function to delete a task
+// Delete one task and refresh dependent UI.
 async function deleteTask(taskId) {
     try {
         const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}`, {
@@ -313,7 +318,7 @@ async function deleteTask(taskId) {
     }
 }
 
-// Function to toggle task completion status
+// Empty PATCH requests intentionally retain the completion-toggle API contract.
 async function toggleTask(taskId) {
     try {
         const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}`, {
@@ -331,7 +336,7 @@ async function toggleTask(taskId) {
     }
 }
 
-// Function to load projects and update the UI
+// Load projects, refresh their cards, and populate both task selectors.
 async function loadProjects() {
     try {
         const response = await fetch(`${API_BASE_URL}/api/projects`);
@@ -391,6 +396,7 @@ async function loadProjects() {
     }
 }
 
+// Populate the project editing dialog from the cached project record.
 function openEditProject(projectId) {
     const project = projectLookup[projectId];
     if (!project) {
@@ -409,6 +415,7 @@ function openEditProject(projectId) {
     bootstrap.Modal.getOrCreateInstance(document.getElementById('editProjectModal')).show();
 }
 
+// Save project details and refresh every view that displays them.
 async function updateProject() {
     if (editingProjectId === null) return;
 
@@ -446,6 +453,7 @@ async function updateProject() {
     }
 }
 
+// Delete a project after confirmation; its tasks become standalone tasks.
 async function deleteProject(projectId) {
     const project = projectLookup[projectId];
     if (!project) return;
@@ -467,7 +475,7 @@ async function deleteProject(projectId) {
     }
 }
 
-// Function to add a new project
+// Create a project and refresh project names and color accents everywhere.
 async function addProject() {
     const nameInput = document.getElementById('projectName');
     const colourInput = document.getElementById('projectColour');
@@ -495,7 +503,7 @@ async function addProject() {
     }
 }
 
-// Function to delete all data (tasks + projects)
+// Permanently clear all local data after explicit confirmation.
 async function deleteAllData() {
     const confirmed = window.confirm('Delete all tasks and projects? This cannot be undone.');
     if (!confirmed) {
@@ -518,13 +526,13 @@ async function deleteAllData() {
     }
 }
 
-// Function to toggle sidebar visibility
+// Collapse the sidebar on desktop while keeping the main view flexible.
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     sidebar.classList.toggle('is-collapsed');
 }
 
-// Function to initialise the calendar
+// Create the calendar lazily so its layout is measured while visible.
 function initCalendar() {
     const calendarEL = document.getElementById('calendar');
     if (!calendarEL) return;
@@ -573,7 +581,7 @@ function initCalendar() {
     calendarInstance.render();
 }
 
-// Function to apply and save theme preference
+// Apply the theme to the document and persist it for the next visit.
 function setTheme(theme) {
     document.documentElement.setAttribute('data-bs-theme', theme);
     localStorage.setItem('taskify_theme', theme);
@@ -583,13 +591,14 @@ function setTheme(theme) {
     }
 }
 
-// Function to check saveed preferences and load them
+// Restore the saved theme before the first render.
 function loadSavedTheme() {
     const savedTheme = localStorage.getItem('taskify_theme') || 'light';
     setTheme(savedTheme);
 }
 
 function setAccessibilityPreference(preference, value) {
+    // Update only the setting that changed so other preferences remain active.
     const root = document.documentElement;
     if (preference === 'textSize') {
         root.classList.toggle('large-text', value === 'large');
@@ -602,6 +611,7 @@ function setAccessibilityPreference(preference, value) {
 }
 
 function applyAccessibilityPreferences() {
+    // System motion preferences are the default until the user chooses a value.
     const savedTextSize = localStorage.getItem('taskify_textSize') || 'normal';
     const savedContrast = localStorage.getItem('taskify_contrast') === 'true';
     const savedMotion = localStorage.getItem('taskify_motion');
@@ -618,7 +628,7 @@ function applyAccessibilityPreferences() {
     document.getElementById('motionToggle').checked = reduceMotion;
 }
 
-// Load tasks when the page loads
+// Load projects first so task rows can resolve project names immediately.
 window.onload = async () => {
     loadSavedTheme();
     applyAccessibilityPreferences();

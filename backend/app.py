@@ -1,14 +1,16 @@
+"""Taskify's Flask API and database models."""
+
 from datetime import date
 
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
-# Initialize the Flask application
+# Application setup and shared validation constants.
 app = Flask(__name__)
 CORS(app)
 
-# Configure the database URI, this tells Flask where to store the database file
+# SQLite stores the local database in Flask's instance directory.
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -16,14 +18,14 @@ db = SQLAlchemy(app)
 PROJECT_COLOURS = {'primary', 'secondary', 'success', 'danger', 'warning', 'info'}
 
 
-# Define the Project model
+# A project groups related tasks and owns the project color shown in the UI.
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     colour = db.Column(db.String(20), default='primary')
     tasks = db.relationship('Task', backref='project', lazy=True)
 
-# Define a simple Task model for demonstration purposes
+# Tasks keep their project relationship optional so standalone tasks are valid.
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String(200), nullable=False)
@@ -32,11 +34,11 @@ class Task(db.Model):
     due_date = db.Column(db.String(20), nullable=True)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=True)
 
-#Create the database file
+# Create the database tables the first time the application starts.
 with app.app_context():
     db.create_all()
 
-# --- PROJECT ROUTES ---
+# --- PROJECT API ---
 
 @app.route('/api/projects', methods=['GET'])
 def get_projects():
@@ -102,16 +104,14 @@ def delete_project(id):
     db.session.commit()
     return jsonify({"message": "Project deleted!"}), 200
 
-# --- TASK ROUTES ---
+# --- TASK API ---
 
-# Define route to get all tasks
 @app.route('/api/tasks', methods=['GET'])
 def get_tasks():
     task = Task.query.all()
-    # Convert the list of tasks to a list of dictionaries
+    # Return only the fields the frontend needs to render a task.
     return jsonify([{'id': t.id, 'content': t.content, 'completed': t.complete, 'priority': t.priority, 'due_date': t.due_date, 'project_id': t.project_id} for t in task])
 
-# Define route to add a new task
 @app.route('/api/tasks', methods=['POST'])
 def add_task():
     if not request.is_json:
@@ -134,7 +134,6 @@ def add_task():
     db.session.commit()
     return jsonify({"message": "Task saved!"}), 201
 
-# Define route to delete a task by ID
 @app.route('/api/tasks/<int:id>', methods=['DELETE'])
 def delete_task(id):
     task = db.session.get(Task, id)
@@ -144,7 +143,6 @@ def delete_task(id):
         return jsonify({"message": "Task deleted!"}), 200
     return jsonify({"message": "Task not found!"}), 404
 
-# Define route to toggle the completion status of a task by ID
 @app.route('/api/tasks/<int:id>', methods=['PATCH'])
 def toggle_task(id):
     task = db.session.get(Task, id)
@@ -152,6 +150,7 @@ def toggle_task(id):
     if not task:
         return jsonify({"message": "Task not found!"}), 404
 
+    # JSON PATCH edits task details; an empty PATCH remains the completion toggle.
     if request.is_json:
         data = request.get_json(silent=True) or {}
         content = (data.get('content') or '').strip()
@@ -202,6 +201,6 @@ def delete_all_data():
         "deleted_projects": deleted_projects
     }), 200
 
-# Run the application
+# Start the development server when this file is run directly.
 if __name__ == '__main__':
     app.run(debug=True, port=5050)
