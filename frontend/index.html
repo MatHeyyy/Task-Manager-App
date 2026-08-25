@@ -27,9 +27,10 @@
                             href="#upcoming"><i class="bi bi-calendar-event me-2"></i> Upcoming</a></li>
                     <li class="nav-item"><a id="projectsNavLink" class="nav-link text-white rounded hover-bg"
                             href="#projects"><i class="bi bi-folder me-2"></i> Projects</a></li>
-                    <li class="nav-item mt-4 pt-4 border-top border-secondary border-opacity-25"><a id="settingsNavLink"
-                            class="nav-link text-white rounded hover-bg" href="#settings"><i
-                                class="bi bi-palette me-2"></i> Settings</a></li>
+                </ul>
+                <ul class="nav flex-column px-3 gap-2 sidebar-settings">
+                    <li class="nav-item"><a id="settingsNavLink" class="nav-link text-white rounded hover-bg"
+                            href="#settings"><i class="bi bi-palette me-2"></i> Settings</a></li>
                 </ul>
             </nav>
 
@@ -153,6 +154,46 @@
                                         <option value="light">Light Mode</option>
                                         <option value="dark">Dark Mode</option>
                                     </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
+                            <h5 class="fw-bold mb-0"><i class="bi bi-universal-access me-2"></i>Accessibility</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row align-items-center g-4">
+                                <div class="col-md-6">
+                                    <label for="textSizeSelect" class="fw-bold mb-1">Text Size</label>
+                                    <p class="text-muted small mb-0">Make task details and labels easier to read.</p>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <select id="textSizeSelect" class="form-select w-auto d-inline-block" aria-label="Select text size">
+                                        <option value="normal">Standard</option>
+                                        <option value="large">Larger</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="contrastToggle" class="fw-bold mb-1">High Contrast</label>
+                                    <p class="text-muted small mb-0">Increase borders and text contrast across the interface.</p>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <div class="form-check form-switch d-inline-flex align-items-center gap-2">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="contrastToggle">
+                                        <label class="form-check-label" for="contrastToggle">On</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="motionToggle" class="fw-bold mb-1">Reduce Motion</label>
+                                    <p class="text-muted small mb-0">Minimize transitions and movement throughout the app.</p>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <div class="form-check form-switch d-inline-flex align-items-center gap-2">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="motionToggle">
+                                        <label class="form-check-label" for="motionToggle">On</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>

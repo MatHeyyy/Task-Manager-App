@@ -589,9 +589,39 @@ function loadSavedTheme() {
     setTheme(savedTheme);
 }
 
+function setAccessibilityPreference(preference, value) {
+    const root = document.documentElement;
+    if (preference === 'textSize') {
+        root.classList.toggle('large-text', value === 'large');
+    } else if (preference === 'contrast') {
+        root.classList.toggle('high-contrast', value);
+    } else if (preference === 'motion') {
+        root.classList.toggle('reduce-motion', value);
+    }
+    localStorage.setItem(`taskify_${preference}`, String(value));
+}
+
+function applyAccessibilityPreferences() {
+    const savedTextSize = localStorage.getItem('taskify_textSize') || 'normal';
+    const savedContrast = localStorage.getItem('taskify_contrast') === 'true';
+    const savedMotion = localStorage.getItem('taskify_motion');
+    const reduceMotion = savedMotion === null
+        ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        : savedMotion === 'true';
+
+    document.documentElement.classList.toggle('large-text', savedTextSize === 'large');
+    document.documentElement.classList.toggle('high-contrast', savedContrast);
+    document.documentElement.classList.toggle('reduce-motion', reduceMotion);
+
+    document.getElementById('textSizeSelect').value = savedTextSize;
+    document.getElementById('contrastToggle').checked = savedContrast;
+    document.getElementById('motionToggle').checked = reduceMotion;
+}
+
 // Load tasks when the page loads
 window.onload = async () => {
     loadSavedTheme();
+    applyAccessibilityPreferences();
     await loadProjects();
     await loadTasks();
     showView('dashboard');
@@ -626,4 +656,16 @@ document.getElementById('settingsNavLink').addEventListener('click', function (e
 
 document.getElementById('themeSelect').addEventListener('change', function (event) {
     setTheme(event.target.value);
+});
+
+document.getElementById('textSizeSelect').addEventListener('change', function (event) {
+    setAccessibilityPreference('textSize', event.target.value);
+});
+
+document.getElementById('contrastToggle').addEventListener('change', function (event) {
+    setAccessibilityPreference('contrast', event.target.checked);
+});
+
+document.getElementById('motionToggle').addEventListener('change', function (event) {
+    setAccessibilityPreference('motion', event.target.checked);
 });
